@@ -1,0 +1,37 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 50px;
+  margin-top: 5%;
+}
+
+.formContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.input {
+  padding: 8px;
+  width: 300px;
+  outline: none;
+  border: 1px solid black;
+  margin: 10px;
+  border-radius: 3px;
+}
+
+.button {
+  padding: 8px;
+  width: 300px;
+  background-color: teal;
+  outline: none;
+  /* border: 1px solid black; */
+  margin: 10px;
+  border-radius: 3px;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
