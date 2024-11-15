@@ -1,37 +1,121 @@
-.container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  gap: 50px;
-  margin-top: 5%;
-}
-
-.formContainer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-}
-
-.input {
-  padding: 8px;
-  width: 300px;
-  outline: none;
-  border: 1px solid black;
-  margin: 10px;
-  border-radius: 3px;
-}
-
-.button {
-  padding: 8px;
-  width: 300px;
-  background-color: teal;
-  outline: none;
-  /* border: 1px solid black; */
-  margin: 10px;
-  border-radius: 3px;
+.container{
   color: white;
+  display: flex;
+}
+
+.titleLogo{
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  margin-top: 12%;
+  margin-left: 5%;
+}
+
+.titleText{
+  font-size: 25px;
+  font-weight: 800;
+}
+
+.subTitleContainer{
+  display: flex;
+  flex-direction: column;
+  margin-left: 5%;
+  gap: 5px;
+}
+
+.subTitleContainer h1{
+  font-size: 25px;
+  font-weight: 800;
+}
+
+.subTitleContainer p{
+  font-size: 13.5px;
+}
+
+.logoImg{
+  width: 40px;
+  border-radius: 50px;
+}
+
+.formContainer{
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  background-color: black;
+  height: 100vh;
+  width: 50%;
+}
+
+.inputItem{
+  width: 60%;
+  position: relative;
+  margin-left: 5%;
+  margin-top: 2%;
+}
+
+.inputItem input{
+  padding: 10px;
+  width: 100%;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  background-color: white;
+  gap:10px;
+  outline: none;
+}
+
+.inputItem input::placeholder{
+  padding-left: 30px;
+}
+
+.inputUserIcon{
+  color:black;
+  position: absolute;
+  left: 10px; 
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.inputEmailIcon{
+  color:black;
+  position: absolute;
+  left: 10px; 
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.inputPasswordIcon{
+  color:black;
+  position: absolute;
+  left: 10px; 
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.inputItem input:focus{
+  border: 1.5px solid slateblue;
+}
+
+.inputBtn{
+  background-color: green;
+  width: 60%;
+  padding: 10px;
+  outline: none;
   border: none;
-  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 5%;
+  border-radius: 3px;
+}
+
+.imageContainer{
+  width: 50%;
+}
+
+.imageContainer img{
+  height: 100%;
 }

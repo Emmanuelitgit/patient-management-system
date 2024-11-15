@@ -1,55 +1,82 @@
 // src/lib/auth.ts
-import { NextAuthOptions } from "next-auth";
+import { NextAuthOptions, User } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import GithubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
-import connect from "@/utils/db";
-import Student from "@/models/Student";
+import connectToDatabase  from "@/utils/db";
+import Patient from "@/models/Patient";
+import { IPatient } from "@/models/Patient";
+import { user } from "@/types/type";
+import { text } from "stream/consumers";
+import { use } from "react";
 
-export const authConfig: NextAuthOptions = {
-  providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    }),
-    GithubProvider({
-      clientId: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-    }),
+
+
+export const authConfig:NextAuthOptions={
+  providers:[
     CredentialsProvider({
-      id: "credentials",
-      name: "Credentials",
-      credentials: {
-        email: { label: "Email", type: "text" },
-        password: { label: "Password", type: "password" },
-      },
-      async authorize(credentials) {
-        await connect();
+      name:"credentials",
 
-        try {
-          const user = await Student.findOne({ email: credentials?.email });
-          if (user) {
-            return user;
-          }
-        } catch (error) {
-          console.log(error);
-        }
+      credentials:{
+        email:{label:"email", type:"text", placeholder:"email"},
+        password:{label:"password", type:"text", placeholder:"password"}
       },
-    }),
+
+     async authorize(credentials) {
+
+      await connectToDatabase();
+
+      try{
+
+      const patientExist:IPatient | null = await Patient.findOne({email:credentials?.email});
+
+      if(patientExist){
+        return patientExist as User
+      }else{
+        return null;
+      }
+      }catch(err){
+        console.log(err)
+        return null
+      }
+       
+     },
+    })
   ],
 
-  callbacks: {
-    async session({ session, user }) {
-      if (session.user) {
-        session.user.id = user.id;
+  callbacks:{
+    async session({session, user}){
+      if(session.user){
+        session.user.id = user.id
       }
       return session;
     },
 
-    async signIn({ user, account, profile }) {
-      await connect();
-      // Additional logic for sign-in can go here
+    async signIn({profile, account, credentials}){
+
+      await connectToDatabase();
+      
+      if(credentials){
+        const userCredentials:IPatient | null = await Patient.findOne({email:credentials?.email})
+        if(userCredentials) return true;
+      }
+
+      if(profile){
+        const userProfile: IPatient | null = await Patient.findOne({email:profile.email});
+        if(userProfile) return true
+
+        if(!userProfile){
+            await Patient.create({
+            email:profile.email,
+            name:profile.name,
+            image:profile.image
+          });
+
+          return true
+        }
+      }
+
       return true;
-    },
-  },
-};
+    }
+  }
+}
