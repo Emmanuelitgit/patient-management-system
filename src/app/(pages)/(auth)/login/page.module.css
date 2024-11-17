@@ -1,9 +1,9 @@
-.container{
+.container {
   color: white;
   display: flex;
 }
 
-.titleLogo{
+.titleLogo {
   display: flex;
   flex-direction: row;
   gap: 10px;
@@ -11,33 +11,33 @@
   margin-left: 5%;
 }
 
-.titleText{
+.titleText {
   font-size: 25px;
   font-weight: 800;
 }
 
-.subTitleContainer{
+.subTitleContainer {
   display: flex;
   flex-direction: column;
   margin-left: 5%;
   gap: 5px;
 }
 
-.subTitleContainer h1{
+.subTitleContainer h1 {
   font-size: 25px;
   font-weight: 800;
 }
 
-.subTitleContainer p{
+.subTitleContainer p {
   font-size: 13.5px;
 }
 
-.logoImg{
+.logoImg {
   width: 40px;
   border-radius: 50px;
 }
 
-.formContainer{
+.formContainer {
   display: flex;
   flex-direction: column;
   gap: 40px;
@@ -46,60 +46,61 @@
   width: 50%;
 }
 
-.inputItem{
+.inputItem {
   width: 60%;
   position: relative;
   margin-left: 5%;
   margin-top: 2%;
 }
 
-.inputItem input{
+.inputItem input {
   padding: 10px;
   width: 100%;
   border-radius: 3px;
   display: flex;
   align-items: center;
   background-color: white;
-  gap:10px;
+  gap: 10px;
   outline: none;
+  color: black;
 }
 
-.inputItem input::placeholder{
+.inputItem input::placeholder {
   padding-left: 30px;
 }
 
-.inputUserIcon{
-  color:black;
+.inputUserIcon {
+  color: black;
   position: absolute;
-  left: 10px; 
+  left: 10px;
   top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
 }
 
-.inputEmailIcon{
-  color:black;
+.inputEmailIcon {
+  color: black;
   position: absolute;
-  left: 10px; 
+  left: 10px;
   top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
 }
 
-.inputPasswordIcon{
-  color:black;
+.inputPasswordIcon {
+  color: black;
   position: absolute;
-  left: 10px; 
+  left: 10px;
   top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
 }
 
-.inputItem input:focus{
+.inputItem input:focus {
   border: 1.5px solid slateblue;
 }
 
-.inputBtn{
+.inputBtn {
   background-color: green;
   width: 60%;
   padding: 10px;
@@ -112,10 +113,10 @@
   border-radius: 3px;
 }
 
-.imageContainer{
+.imageContainer {
   width: 50%;
 }
 
-.imageContainer img{
+.imageContainer img {
   height: 100%;
 }

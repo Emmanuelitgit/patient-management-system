@@ -3,80 +3,115 @@ import { NextAuthOptions, User } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import GithubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
-import connectToDatabase  from "@/utils/db";
+import connectToDatabase from "@/utils/db";
 import Patient from "@/models/Patient";
 import { IPatient } from "@/models/Patient";
 import { user } from "@/types/type";
 import { text } from "stream/consumers";
 import { use } from "react";
+import { compareSync } from "bcrypt-ts";
 
-
-
-export const authConfig:NextAuthOptions={
-  providers:[
+export const authConfig: NextAuthOptions = {
+  providers: [
     CredentialsProvider({
-      name:"credentials",
+      name: "credentials",
 
-      credentials:{
-        email:{label:"email", type:"text", placeholder:"email"},
-        password:{label:"password", type:"text", placeholder:"password"}
+      credentials: {
+        email: { label: "email", type: "text", placeholder: "email" },
+        username: { label: "username", type: "text", placeholder: "username" },
+        password: { label: "password", type: "text", placeholder: "password" },
       },
 
-     async authorize(credentials) {
+      // return type must be User
+      async authorize(credentials) {
+        await connectToDatabase();
 
-      await connectToDatabase();
+        try {
+          const patientExist: User | null = await Patient.findOne({
+            email: credentials?.email,
+          });
 
-      try{
-
-      const patientExist:IPatient | null = await Patient.findOne({email:credentials?.email});
-
-      if(patientExist){
-        return patientExist as User
-      }else{
-        return null;
-      }
-      }catch(err){
-        console.log(err)
-        return null
-      }
-       
-     },
-    })
+          if (patientExist) {
+            const isPasswordCorrect = compareSync(
+              credentials?.password ?? "",
+              patientExist.password
+            );
+            if (isPasswordCorrect) {
+              return patientExist;
+            } else {
+              return null;
+            }
+          } else {
+            return null;
+          }
+        } catch (err) {
+          console.log(err);
+          return null;
+        }
+      },
+    }),
   ],
 
-  callbacks:{
-    async session({session, user}){
-      if(session.user){
-        session.user.id = user.id
+  callbacks: {
+    // return type is token
+    // async jwt({ token, user }) {
+    //   if (user) {
+    //     (token.email = user.email),
+    //       (token.full_name = user.full_name),
+    //       (token.id = user.id),
+    //       (token.image = user.image),
+    //       (token.username = user.username ?? ""),
+    //       (token.access_token = user.access_token),
+    //       (token.refresh_token = user.refresh_token);
+    //   }
+    //   return token;
+    // },
+
+    // return type for session is session
+    async session({ session }) {
+      const user: User | null = await Patient.findOne({
+        email: session.user.email,
+      });
+      if (user) {
+        (session.user.id = user.id.toString()),
+          (session.user.full_name = user.full_name);
       }
+
       return session;
     },
 
-    async signIn({profile, account, credentials}){
-
+    // return type for signIn is boolean
+    async signIn({ profile, account, credentials }) {
       await connectToDatabase();
-      
-      if(credentials){
-        const userCredentials:IPatient | null = await Patient.findOne({email:credentials?.email})
-        if(userCredentials) return true;
+
+      // check if user is logging in with custom credentials like email and password
+      if (credentials) {
+        const userCredentials: User | null = await Patient.findOne({
+          email: credentials?.email,
+        });
+        if (userCredentials) return true;
       }
 
-      if(profile){
-        const userProfile: IPatient | null = await Patient.findOne({email:profile.email});
-        if(userProfile) return true
+      // check if user is loggin in with provider like google or github
+      if (profile) {
+        const userProfile: User | null = await Patient.findOne({
+          email: profile.email,
+        });
+        if (userProfile) return true;
 
-        if(!userProfile){
-            await Patient.create({
-            email:profile.email,
-            name:profile.name,
-            image:profile.image
+        // create one if user details does not exist in the database
+        if (!userProfile) {
+          await Patient.create({
+            email: profile.email,
+            full_name: profile.name,
+            image: profile?.image,
           });
 
-          return true
+          return true;
         }
       }
 
       return true;
-    }
-  }
-}
+    },
+  },
+};
