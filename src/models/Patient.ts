@@ -1,15 +1,5 @@
 import mongoose, { Document, Schema } from "mongoose";
-
-// interface for the document
-export interface IPatient extends Document {
-  full_name: string;
-  email: string;
-  username?: string;
-  password: string;
-  image?: string;
-  access_token: string;
-  refresh_token: string;
-}
+import { IPatient } from "@/types/type";
 
 // the databse schema
 const patientSchema = new Schema<IPatient>({

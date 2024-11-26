@@ -5,11 +5,11 @@ import GithubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
 import connectToDatabase from "@/utils/db";
 import Patient from "@/models/Patient";
-import { IPatient } from "@/models/Patient";
-import { user } from "@/types/type";
+import { IPatient } from "@/types/type";
 import { text } from "stream/consumers";
 import { use } from "react";
 import { compareSync } from "bcrypt-ts";
+import jwt, { Secret, JwtPayload } from "jsonwebtoken";
 
 export const authConfig: NextAuthOptions = {
   providers: [
@@ -37,7 +37,19 @@ export const authConfig: NextAuthOptions = {
               patientExist.password
             );
             if (isPasswordCorrect) {
-              return patientExist;
+              const token = jwt.sign({ id: patientExist.id }, "my_secret", {
+                expiresIn: "1h",
+              });
+
+              return {
+                id: patientExist.id,
+                full_name: patientExist.full_name,
+                username: patientExist.username,
+                email: patientExist.email,
+                image: patientExist.image,
+                access_token: token,
+                refresh_token: token,
+              } as User;
             } else {
               return null;
             }
@@ -54,27 +66,28 @@ export const authConfig: NextAuthOptions = {
 
   callbacks: {
     // return type is token
-    // async jwt({ token, user }) {
-    //   if (user) {
-    //     (token.email = user.email),
-    //       (token.full_name = user.full_name),
-    //       (token.id = user.id),
-    //       (token.image = user.image),
-    //       (token.username = user.username ?? ""),
-    //       (token.access_token = user.access_token),
-    //       (token.refresh_token = user.refresh_token);
-    //   }
-    //   return token;
-    // },
+    async jwt({ token, user }) {
+      if (user) {
+        (token.id = user?.id),
+          (token.username = user?.username ?? ""),
+          (token.email = user?.email),
+          (token.full_name = user?.full_name),
+          (token.image = user?.image),
+          (token.access_token = user?.access_token),
+          (token.refresh_token = user?.refresh_token);
+      }
+      return token;
+    },
 
     // return type for session is session
-    async session({ session }) {
-      const user: User | null = await Patient.findOne({
-        email: session.user.email,
-      });
-      if (user) {
-        (session.user.id = user.id.toString()),
-          (session.user.full_name = user.full_name);
+    async session({ session, token }) {
+      if (token) {
+        session.user.id = token.id;
+        (session.user.email = token?.email),
+          (session.user.username = token?.username);
+        (session.user.full_name = token?.full_name),
+          (session.user.access_token = token?.access_token ?? ""),
+          (session.user.refresh_token = token?.refresh_token ?? "");
       }
 
       return session;

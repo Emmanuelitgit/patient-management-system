@@ -24,9 +24,11 @@
     "next": "14.2.15",
     "next-auth": "^4.24.8",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "types-registry": "^0.1.696"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

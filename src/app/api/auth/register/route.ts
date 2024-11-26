@@ -1,6 +1,7 @@
 import connectToDatabase from "@/utils/db";
 import { NextRequest, NextResponse } from "next/server";
-import Patient, { IPatient } from "@/models/Patient";
+import Patient from "@/models/Patient";
+import { IPatient } from "@/types/type";
 import { UserCredentials } from "@/types/type";
 import { NextApiRequest } from "next";
 import { ResponseData } from "@/types/type";
