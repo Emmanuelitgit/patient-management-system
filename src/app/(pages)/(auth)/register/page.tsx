@@ -1,27 +1,27 @@
 "use client";
 import React, { useState } from "react";
-import styles from "@/app/(pages)/(auth)/login/page.module.css";
-import Image from "next/image";
+import styles from "@/app/(pages)/(auth)/register/page.module.css";
 import PermIdentityIcon from "@mui/icons-material/PermIdentity";
-import { signIn, signOut, useSession, getProviders } from "next-auth/react";
-import { UserCredentials } from "@/types/type";
+import { signIn } from "next-auth/react";
+import { user } from "@/types/type";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 
 const page = () => {
   const router = useRouter();
-  const [credentials, setCredentials] = useState<UserCredentials>({
+  const [credentials, setCredentials] = useState<user>({
+    full_name: "",
     email: "",
     password: "",
   });
 
-  const handleLogin = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleRegister = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     const rsesponse = await signIn("credentials", {
       redirect: false,
       email: credentials.email,
       password: credentials.password,
     });
+    console.log(rsesponse);
     if (rsesponse?.status === 200) {
       router.push("/dashboard");
     } else if (rsesponse?.status === 401) {
@@ -56,7 +56,16 @@ const page = () => {
         </div>
         <div className={styles.subTitleContainer}>
           <h1>Hi there 🤝</h1>
-          <p>Login to get started with your appointments</p>
+          <p>Sign up to get started with your appointments</p>
+        </div>
+        <div className={styles.inputItem}>
+          <PermIdentityIcon className={styles.inputUserIcon} />
+          <input
+            type="text"
+            placeholder="Full Name"
+            name="full_name"
+            onChange={handleChange}
+          />
         </div>
         <div className={styles.inputItem}>
           <PermIdentityIcon className={styles.inputEmailIcon} />
@@ -77,7 +86,7 @@ const page = () => {
           />
         </div>
         <div className={styles.inputBtnContainer}>
-          <button className={styles.inputBtn} onClick={handleLogin}>
+          <button className={styles.inputBtn} onClick={handleRegister}>
             Login
           </button>
         </div>

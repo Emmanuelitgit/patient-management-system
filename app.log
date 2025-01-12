@@ -1,0 +1,12 @@
+{"client":"true","error":"[object Object]","level":"error","message":"NextAuth Error - Code: CLIENT_FETCH_ERROR Failed to fetch","timestamp":"2025-01-12T10:39:29.432Z","url":"/api/auth/session"}
+{"client":"true","error":"[object Object]","level":"error","message":"NextAuth Error - Code: CLIENT_FETCH_ERROR Failed to fetch","timestamp":"2025-01-12T10:43:15.438Z","url":"/api/auth/session"}
+{"client":"true","error":"[object Object]","level":"error","message":"NextAuth Error - Code: CLIENT_FETCH_ERROR Failed to fetch","timestamp":"2025-01-12T10:43:46.121Z","url":"/api/auth/session"}
+{"client":"true","error":"[object Object]","level":"error","message":"NextAuth Error - Code: CLIENT_FETCH_ERROR Failed to fetch","timestamp":"2025-01-12T10:55:17.155Z","url":"/api/auth/session"}
+{"client":"true","error":"[object Object]","level":"error","message":"NextAuth Error - Code: CLIENT_FETCH_ERROR Failed to fetch","timestamp":"2025-01-12T10:57:06.552Z","url":"/api/auth/session"}
+{"client":"true","error":"[object Object]","level":"error","message":"NextAuth Error - Code: CLIENT_FETCH_ERROR Failed to fetch","timestamp":"2025-01-12T15:04:09.640Z","url":"/api/auth/session"}
+{"client":"true","error":"[object Object]","level":"error","message":"NextAuth Error - Code: CLIENT_FETCH_ERROR Failed to fetch","timestamp":"2025-01-12T18:58:22.820Z","url":"/api/auth/session"}
+{"client":"true","error":"[object Object]","level":"error","message":"NextAuth Error - Code: CLIENT_FETCH_ERROR Failed to fetch","timestamp":"2025-01-12T19:00:19.949Z","url":"/api/auth/session"}
+{"client":"true","error":"[object Object]","level":"error","message":"NextAuth Error - Code: CLIENT_FETCH_ERROR Failed to fetch","timestamp":"2025-01-12T19:00:20.044Z","url":"/api/auth/session"}
+{"client":"true","error":"[object Object]","level":"error","message":"NextAuth Error - Code: CLIENT_FETCH_ERROR Failed to fetch","timestamp":"2025-01-12T19:12:02.496Z","url":"/api/auth/session"}
+{"client":"true","error":"[object Object]","level":"error","message":"NextAuth Error - Code: CLIENT_FETCH_ERROR Failed to fetch","timestamp":"2025-01-12T19:20:52.817Z","url":"/api/auth/session"}
+{"client":"true","error":"[object Object]","level":"error","message":"NextAuth Error - Code: CLIENT_FETCH_ERROR Failed to fetch","timestamp":"2025-01-12T20:26:27.887Z","url":"/api/auth/session"}

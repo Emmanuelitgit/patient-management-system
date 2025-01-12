@@ -8,7 +8,6 @@ declare module "next-auth" {
       id: string;
       email: string;
       full_name: string;
-      username: string;
       image?: string;
       access_token: string;
       refresh_token: string;
@@ -19,7 +18,6 @@ declare module "next-auth" {
     id: string;
     full_name: string;
     email: string;
-    username?: string;
     image?: string;
     access_token: string;
     refresh_token: string;
@@ -48,9 +46,18 @@ declare module "next-auth/jwt" {
     id: string;
     email: string;
     full_name: string;
-    username: string;
     image?: string;
     access_token?: string;
     refresh_token?: string;
   }
+}
+
+// logging-service.d.ts
+declare module "logging-service" {
+  const log: {
+    error: (message: string, metadata?: unknown) => void;
+    warn: (message: string) => void;
+    debug: (message: string, metadata?: unknown) => void;
+  };
+  export default log;
 }

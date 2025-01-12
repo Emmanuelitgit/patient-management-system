@@ -45,8 +45,9 @@
   flex-direction: column;
   gap: 40px;
   background-color: black;
-  height: 100vh;
   width: 50%;
+  box-sizing: border-box;
+  padding-bottom: 30px;
 }
 
 .inputItem {
@@ -66,8 +67,8 @@
   gap: 10px;
   outline: none;
   color: black;
-  padding-left: 40px;
   border: 1.5px solid white;
+  padding-left: 40px;
 }
 .inputItem input:focus {
   border: 1.5px solid slateblue;

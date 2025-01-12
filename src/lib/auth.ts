@@ -5,22 +5,24 @@ import GithubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
 import connectToDatabase from "@/utils/db";
 import Patient from "@/models/Patient";
-import { IPatient } from "@/types/type";
-import { text } from "stream/consumers";
-import { use } from "react";
 import { compareSync } from "bcrypt-ts";
-import jwt, { Secret, JwtPayload } from "jsonwebtoken";
+import { MongoDBAdapter } from "@auth/mongodb-adapter";
+import client from "@/utils/client-db";
+import { log } from "@/logging-service";
 
 export const authConfig: NextAuthOptions = {
+  // adapter: MongoDBAdapter(client),
   providers: [
     CredentialsProvider({
       name: "credentials",
-
+      id: "credentials",
       credentials: {
         email: { label: "email", type: "text", placeholder: "email" },
         username: { label: "username", type: "text", placeholder: "username" },
         password: { label: "password", type: "text", placeholder: "password" },
       },
+
+      // full_name, access_token, refresh_token, password
 
       // return type must be User
       async authorize(credentials) {
@@ -37,18 +39,11 @@ export const authConfig: NextAuthOptions = {
               patientExist.password
             );
             if (isPasswordCorrect) {
-              const token = jwt.sign({ id: patientExist.id }, "my_secret", {
-                expiresIn: "1h",
-              });
-
               return {
                 id: patientExist.id,
                 full_name: patientExist.full_name,
-                username: patientExist.username,
                 email: patientExist.email,
                 image: patientExist.image,
-                access_token: token,
-                refresh_token: token,
               } as User;
             } else {
               return null;
@@ -64,36 +59,41 @@ export const authConfig: NextAuthOptions = {
     }),
   ],
 
+  session: {
+    strategy: "jwt", // Use JWT for stateless session
+    maxAge: 6000 * 6000, // Session expiration time in seconds (1 hour)
+  },
+
   callbacks: {
     // return type is token
+    // this token is sent to the users browser on their first login or visit to the application
+    // this token automatically append to each request by the browser automatically.
+    // the token is stored in the browser as a cookie.
     async jwt({ token, user }) {
       if (user) {
         (token.id = user?.id),
-          (token.username = user?.username ?? ""),
           (token.email = user?.email),
           (token.full_name = user?.full_name),
-          (token.image = user?.image),
-          (token.access_token = user?.access_token),
-          (token.refresh_token = user?.refresh_token);
+          (token.image = user?.image);
       }
       return token;
     },
 
     // return type for session is session
+    // this is what is accessible to the frontend via useSession() hook
     async session({ session, token }) {
       if (token) {
         session.user.id = token.id;
         (session.user.email = token?.email),
-          (session.user.username = token?.username);
-        (session.user.full_name = token?.full_name),
-          (session.user.access_token = token?.access_token ?? ""),
-          (session.user.refresh_token = token?.refresh_token ?? "");
+          (session.user.full_name = token?.full_name);
       }
 
       return session;
     },
 
     // return type for signIn is boolean
+    // it returns true when login is success otherwise false
+    // it also allow us to check the type of authentication user is using example credentials, third party provider etc.
     async signIn({ profile, account, credentials }) {
       await connectToDatabase();
 
@@ -126,5 +126,25 @@ export const authConfig: NextAuthOptions = {
 
       return true;
     },
+  },
+
+  // secret key for encoding and decoding of user authentication details eg is jwt.
+  secret: process.env.AUTH_SECRET,
+
+  //log levels
+  logger: {
+    error(code, metadata) {
+      log.error(`NextAuth Error - Code: ${code}`, metadata);
+    },
+    warn(code) {
+      log.warn(`NextAuth Warning - Code: ${code}`);
+    },
+    debug(code, metadata) {
+      log.debug(`NextAuth Debug - Code: ${code}`, metadata);
+    },
+  },
+
+  pages: {
+    signIn: "/login",
   },
 };

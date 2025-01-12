@@ -11,15 +11,15 @@ const patientSchema = new Schema<IPatient>({
     type: String,
     required: true,
   },
-  username: {
-    type: String,
-    required: false,
-  },
   password: {
     type: String,
-    required: false,
+    required: true,
   },
   image: {
+    type: String,
+    required: false,
+  },
+  role: {
     type: String,
     required: false,
   },

@@ -8,11 +8,15 @@ import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import DataTable from "@/components/DataTable";
 import { useSession } from "next-auth/react";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import { useRouter } from "next/navigation";
 
 const page = () => {
   const session = useSession();
+  const router = useRouter();
 
-  console.log(session);
+  // if (session.status === "unauthenticated") {
+  //   router.push("/login");
+  // }
 
   return (
     <div className={styles.container}>

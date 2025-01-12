@@ -8,7 +8,7 @@ import { ResponseData } from "@/types/type";
 import { genSaltSync, hashSync } from "bcrypt-ts";
 
 export const POST = async (req: NextRequest) => {
-  const { username, email, password, image, full_name }: IPatient =
+  const { username, email, password, image, full_name, role }: IPatient =
     await req.json();
   try {
     const salt = genSaltSync(10);
@@ -20,6 +20,7 @@ export const POST = async (req: NextRequest) => {
       password: hashedPassword,
       image,
       full_name,
+      role,
     });
     const response: ResponseData = {
       message: "user added successfully",
