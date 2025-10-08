@@ -2,13 +2,12 @@ package patient_management_system.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import patient_management_system.dto.ResponseDTO;
+import patient_management_system.models.Patient;
 import patient_management_system.service.PatientService;
 
 @Tag(name = "Patient Management")
@@ -33,5 +32,11 @@ public class PatientController {
     @GetMapping(value = "/{id}")
     public ResponseEntity<ResponseDTO> findById(@PathVariable String id){
         return patientService.findById(id);
+    }
+
+    @Operation(summary = "This endpoint is used to add new patient")
+    @PostMapping
+    public ResponseEntity<ResponseDTO> addPatient(@RequestBody @Valid Patient patient){
+        return patientService.addPatient(patient);
     }
 }

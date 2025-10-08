@@ -10,4 +10,7 @@ import java.util.Optional;
 public interface PatientMapper {
     List<Patient> findAll();
     Optional<Patient> findById(String id);
+    Optional<Patient> findByEmail(String email);
+    Integer addPatient(Patient patient);
+    Integer updateById(Patient patient);
 }

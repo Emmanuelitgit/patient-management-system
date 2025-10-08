@@ -6,6 +6,12 @@
         <id column="id" property="id"/>
         <result column="name" property="name"/>
         <result column="email" property="email"/>
+        <result column="address" property="address"/>
+        <result column="dob" property="dob"/>
+        <result column="medical_history" property="medicalHistory"/>
+        <result column="gender" property="gender"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="created_by" property="createdBy"/>
     </resultMap>
 
     <select id="findAll" resultMap="PatientResultMap">
@@ -15,5 +21,22 @@
     <select id="findById" resultMap="PatientResultMap" parameterType="string">
         SELECT * FROM patients_tbl WHERE id = #{id}
     </select>
+
+    <select id="findByEmail" resultMap="PatientResultMap" parameterType="string">
+        SELECT * FROM patients_tbl WHERE email = #{email}
+    </select>
+
+    <insert id="addPatient">
+        INSERT INTO patients_tbl(id,name,email,address,medical_history,
+                                 gender,phone,dob,created_at,created_by)
+        VALUES(#{id},#{name},#{email},#{address},#{medicalHistory},
+               #{gender},#{phone},#{dob},#{createdAt},#{createdBy})
+    </insert>
+
+    <update id="updateById">
+        UPDATE patients_tbl SET name=#{name}, email=#{email}, address=#{address}, gender=#{gender},
+                                 phone=#{phone}, medical_history=#{medicalHistory}, dob=#{dob}
+                                 WHERE id = #{id}
+    </update>
 
 </mapper>
