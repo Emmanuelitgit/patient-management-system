@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="patient_management_system.dao.PatientMapper">
+
+    <resultMap id="PatientResultMap" type="patient_management_system.models.Patient">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="email" property="email"/>
+    </resultMap>
+
+    <select id="findAll" resultMap="PatientResultMap">
+        SELECT * FROM patients_tbl
+    </select>
+
+    <select id="findById" resultMap="PatientResultMap" parameterType="string">
+        SELECT * FROM patients_tbl WHERE id = #{id}
+    </select>
+
+</mapper>
