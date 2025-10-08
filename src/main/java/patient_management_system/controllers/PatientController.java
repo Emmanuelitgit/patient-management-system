@@ -39,4 +39,16 @@ public class PatientController {
     public ResponseEntity<ResponseDTO> addPatient(@RequestBody @Valid Patient patient){
         return patientService.addPatient(patient);
     }
+
+    @Operation(summary = "This method is used to update patient record by id")
+    @PutMapping
+    public ResponseEntity<ResponseDTO> updateById(@RequestBody Patient patient){
+        return patientService.updateById(patient);
+    }
+
+    @Operation(summary = "This method is used to delete a patient record by id")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ResponseDTO> deleteById(@PathVariable String id){
+        return patientService.deleteById(id);
+    }
 }

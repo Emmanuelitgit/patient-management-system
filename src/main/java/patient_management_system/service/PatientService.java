@@ -152,6 +152,13 @@ public class PatientService {
         }
     }
 
+    /**
+     * @description This method is used to update a patient record by id
+     * @param patient The payload of the patient to be updated
+     * @return ResponseEntity containing the updated patient record and status info
+     * @auther Emmanuel Yidana
+     * @createdAt 8th October 2025
+     */
     public ResponseEntity<ResponseDTO> updateById(Patient patient){
         try {
             log.info("In update patient by id method:->>{}");
@@ -188,12 +195,57 @@ public class PatientService {
                 responseDTO =AppUtils.getResponseDto("Patient record update was not successfully", HttpStatus.BAD_REQUEST);
                 return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
             }
-
             /**
              * return response on success
              */
             log.info("Patient records was updated successfully:->>{}", existingData);
             responseDTO = AppUtils.getResponseDto("Patient record was updated successfully", HttpStatus.OK,existingData);
+            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+
+        }catch (Exception e) {
+            log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
+            ResponseDTO  response = AppUtils.getResponseDto(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * @description This method is used to delete a patient record by id
+     * @param id The id of the patient to be deleted
+     * @return ResponseEntity containing the updated patient record and status info
+     * @auther Emmanuel Yidana
+     * @createdAt 8th October 2025
+     */
+    public ResponseEntity<ResponseDTO> deleteById(String id){
+        try{
+            ResponseDTO responseDTO;
+            log.info("In delete patient record by id method");
+
+            /**
+             * check if patient record exist
+             */
+            Optional<Patient> patientOptional = patientMapper.findById(id);
+            if (patientOptional.isEmpty()){
+                log.error("Patient record not found:->>{}", id);
+                responseDTO = AppUtils.getResponseDto("Patient record not found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
+            }
+
+            Integer affectedRows = patientMapper.deleteById(id);
+            /**
+             * check if record was deleted
+             */
+            if (affectedRows<0){
+                log.error("Patient record deletion was not successfully");
+                responseDTO =AppUtils.getResponseDto("Patient record deletion was not successfully", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+
+            /**
+             * return response on success
+             */
+            log.info("Patient record was deleted successfully");
+            responseDTO = AppUtils.getResponseDto("Patient record was deleted successfully", HttpStatus.OK);
             return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 
         }catch (Exception e) {

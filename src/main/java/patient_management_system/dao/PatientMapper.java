@@ -13,4 +13,5 @@ public interface PatientMapper {
     Optional<Patient> findByEmail(String email);
     Integer addPatient(Patient patient);
     Integer updateById(Patient patient);
+    Integer deleteById(String id);
 }

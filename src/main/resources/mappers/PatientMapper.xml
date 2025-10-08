@@ -39,4 +39,8 @@
                                  WHERE id = #{id}
     </update>
 
+    <delete id="deleteById" parameterType="string">
+        DELETE FROM patients_tbl WHERE id = #{id}
+    </delete>
+
 </mapper>
