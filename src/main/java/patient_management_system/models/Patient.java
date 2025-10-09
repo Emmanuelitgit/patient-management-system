@@ -30,5 +30,7 @@ public class Patient {
     private String address;
     private String medicalHistory;
     private LocalDate createdAt;
+    private LocalDate updatedAt;
     private String createdBy;
+    private String updatedBy;
 }

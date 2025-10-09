@@ -1,0 +1,1 @@
+ALTER TABLE users_tbl RENAME COLUMN enable TO enabled;

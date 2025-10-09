@@ -48,7 +48,6 @@ public class PatientService {
                 responseDTO = AppUtils.getResponseDto("No patient record found", HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
             }
-
             /**
              * return results on success
              */
@@ -86,7 +85,6 @@ public class PatientService {
                 responseDTO = AppUtils.getResponseDto("Patient record cannot be found", HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
             }
-
             /**
              * return retrieved records on success
              */
@@ -114,7 +112,7 @@ public class PatientService {
             log.info("In add patient method:->>{}", patient);
 
             /**
-             * check if user already exist
+             * check if patient already exist
              */
             log.info("Checking if patient already exist....");
             Optional<Patient> patientAlreadyExist = patientMapper.findByEmail(patient.getEmail());
@@ -124,11 +122,11 @@ public class PatientService {
                 responseDTO = AppUtils.getResponseDto("Patient already exist", HttpStatus.ALREADY_REPORTED);
                 return new ResponseEntity<>(responseDTO, HttpStatus.ALREADY_REPORTED);
             }
-
             /**
-             * check if record was inserted
+             * insert record and check if it was inserted
              */
-            patient.setId(UUID.randomUUID().toString());
+            String patientId = UUID.randomUUID().toString();
+            patient.setId(patientId);
             patient.setCreatedAt(LocalDate.now());
             patient.setCreatedBy(UUID.randomUUID().toString());
             Integer affectedRows = patientMapper.addPatient(patient);
@@ -137,12 +135,20 @@ public class PatientService {
                 responseDTO = AppUtils.getResponseDto("Patient record failed to insert", HttpStatus.BAD_REQUEST);
                 return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
             }
-
+            /**
+             * retrieve saved record and return to client
+             */
+            Optional<Patient> patientOptional = patientMapper.findById(patientId);
+            if (patientOptional.isEmpty()){
+                log.info("Patient record not found");
+                responseDTO = AppUtils.getResponseDto("Patient record not found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
+            }
             /**
              * return response on success
              */
             log.info("Patient record added successfully:->>{}", patient);
-            responseDTO = AppUtils.getResponseDto("Patient record added successfully", HttpStatus.CREATED);
+            responseDTO = AppUtils.getResponseDto("Patient record added successfully", HttpStatus.CREATED, patientOptional.get());
             return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
 
         }catch (Exception e) {
@@ -161,7 +167,7 @@ public class PatientService {
      */
     public ResponseEntity<ResponseDTO> updateById(Patient patient){
         try {
-            log.info("In update patient by id method:->>{}");
+            log.info("In update patient by id method:->>{}", patient);
             ResponseDTO responseDTO;
 
             /**
@@ -179,12 +185,15 @@ public class PatientService {
              * populating updated values
              */
             Patient existingData = patientOptional.get();
+            existingData.setName(patient.getName()!=null?patient.getName(): existingData.getName());
             existingData.setDob(patient.getDob()!=null?patient.getDob():existingData.getDob());
             existingData.setEmail(patient.getEmail()!=null?patient.getEmail(): existingData.getEmail());
             existingData.setAddress(patient.getAddress()!=null?patient.getAddress(): existingData.getAddress());
             existingData.setMedicalHistory(patient.getMedicalHistory()!=null? patient.getMedicalHistory() : existingData.getMedicalHistory());
             existingData.setGender(patient.getGender()!=null? patient.getGender() : existingData.getGender());
             existingData.setPhone(patient.getPhone()!=null? patient.getPhone() : existingData.getPhone());
+            existingData.setUpdatedAt(LocalDate.now());
+            existingData.setUpdatedBy(UUID.randomUUID().toString());
             Integer affectedRows = patientMapper.updateById(existingData);
 
             /**
@@ -240,7 +249,6 @@ public class PatientService {
                 responseDTO =AppUtils.getResponseDto("Patient record deletion was not successfully", HttpStatus.BAD_REQUEST);
                 return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
             }
-
             /**
              * return response on success
              */

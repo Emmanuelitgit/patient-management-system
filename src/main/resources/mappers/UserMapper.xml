@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="patient_management_system.dao.UserMapper">
+
+    <resultMap id="UserResultMap" type="patient_management_system.models.User">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="email" property="email"/>
+        <result column="username" property="username"/>
+        <result column="password" property="password"/>
+        <result column="role" property="role"/>
+        <result column="enabled" property="enabled"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="updated_by" property="updatedBy"/>
+    </resultMap>
+
+    <select id="findAll" resultMap="UserResultMap">
+        SELECT * FROM users_tbl
+    </select>
+
+    <select id="findById" resultMap="UserResultMap" parameterType="string">
+        SELECT * FROM users_tbl WHERE id = #{id}
+    </select>
+
+    <select id="findByEmail" resultMap="UserResultMap" parameterType="string">
+        SELECT * FROM users_tbl WHERE email = #{email}
+    </select>
+
+    <insert id="addUser">
+        INSERT INTO
+            users_tbl(id,name,email,username,phone,
+            password,role,enabled,created_at,created_by)
+        VALUES(#{id},#{name},#{email},#{username},#{phone},
+               #{password},#{role},#{enabled},#{createdAt},#{createdBy})
+    </insert>
+
+    <update id="updateById">
+        UPDATE users_tbl
+        SET name=#{name}, email=#{email},phone=#{phone},
+        username=#{username},updated_at=#{updatedAt},
+        updated_by=#{updatedBy}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="string">
+        DELETE FROM users_tbl WHERE id = #{id}
+    </delete>
+
+</mapper>

@@ -34,9 +34,11 @@
     </insert>
 
     <update id="updateById">
-        UPDATE patients_tbl SET name=#{name}, email=#{email}, address=#{address}, gender=#{gender},
-                                 phone=#{phone}, medical_history=#{medicalHistory}, dob=#{dob}
-                                 WHERE id = #{id}
+        UPDATE patients_tbl
+        SET name=#{name}, email=#{email}, address=#{address}, gender=#{gender},
+        phone=#{phone}, medical_history=#{medicalHistory}, dob=#{dob},
+        updated_at=#{updatedAt},updated_by=#{updatedBy}
+        WHERE id = #{id}
     </update>
 
     <delete id="deleteById" parameterType="string">
