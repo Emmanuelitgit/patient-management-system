@@ -1,0 +1,2 @@
+ALTER TABLE appointments_tbl
+DROP COLUMN capacity

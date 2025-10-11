@@ -1,0 +1,2 @@
+ALTER TABLE users_tbl
+ADD capacity INTEGER NOT NULL

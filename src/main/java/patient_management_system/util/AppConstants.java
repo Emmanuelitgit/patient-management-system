@@ -1,7 +1,7 @@
-package employee_self_service.util;
+package patient_management_system.util;
 
 public interface AppConstants {
-    public final String HR_ROLE = "HR";
+    public final String DOCTOR_ROLE = "DOCTOR";
 
     public final String ADMIN_ROLE = "ADMIN";
 
@@ -11,7 +11,13 @@ public interface AppConstants {
 
     public final String ACCOUNTANT_ROLE = "ACCOUNTANT";
 
-    public final String EMPLOYEE_ROLE = "EMPLOYEE";
+    public final String NURSE_ROLE = "NURSE";
+
+    public final String RECEPTIONIST_ROLE = "RECEPTIONIST";
+
+    public final String PHARMACIST_ROLE = "PHARMACIST";
+
+    public final String LABORATORY_ROLE = "LABORATORY_TECHNICIAN";
 
     public final String PERSONAL_LOAN = "PERSONAL_LOAN";
 
