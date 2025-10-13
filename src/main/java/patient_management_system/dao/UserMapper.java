@@ -13,4 +13,6 @@ public interface UserMapper {
     Integer addUser(User user);
     Integer updateById(User user);
     Integer deleteById(String id);
+    Integer countAllUsers();
+    List<Patient> getPaginatedUsers(Integer limit, Integer offset);
 }

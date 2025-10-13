@@ -14,4 +14,6 @@ public interface PatientMapper {
     Integer addPatient(Patient patient);
     Integer updateById(Patient patient);
     Integer deleteById(String id);
+    Integer countAllPatients();
+    List<Patient> getPaginatedPatients(Integer limit, Integer offset);
 }

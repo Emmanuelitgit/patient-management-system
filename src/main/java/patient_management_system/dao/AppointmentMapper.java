@@ -19,4 +19,6 @@ public interface AppointmentMapper {
                              LocalTime startTime,
                              LocalTime endTime,
                              String doctorId);
+    Integer countAllAppointments();
+    List<Appointment> getPaginatedAppointments(Integer limit, Integer offset);
 }

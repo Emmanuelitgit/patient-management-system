@@ -1,4 +1,4 @@
-package patient_management_system.controllers;
+package patient_management_system.controllers.api;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,13 +12,13 @@ import patient_management_system.service.PatientService;
 
 @Tag(name = "Patient Management")
 @RestController
-@RequestMapping("/patients")
-public class PatientController {
+@RequestMapping("/api/patients")
+public class PatientRest {
 
     private final PatientService patientService;
 
     @Autowired
-    public PatientController(PatientService patientService) {
+    public PatientRest(PatientService patientService) {
         this.patientService = patientService;
     }
 

@@ -65,4 +65,12 @@
             )
     </select>
 
+    <select id="getPaginatedAppointments" resultMap="AppointmentMapper">
+        SELECT * FROM appointments_tbl ORDER BY id LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countAllAppointments" resultType="int">
+        SELECT COUNT(*) FROM appointments_tbl
+    </select>
+
 </mapper>
