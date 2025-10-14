@@ -10,6 +10,9 @@
 </head>
 <body class="bg-light">
 
+<%--<jsp:include page="navbar.jsp" />--%>
+<%--<jsp:include page="sidebar.jsp" />--%>
+
 <div class="container mt-5">
     <h2 class="mb-4">Register Patient</h2>
 

@@ -48,7 +48,7 @@
         DELETE FROM users_tbl WHERE id = #{id}
     </delete>
 
-    <select id="getPaginatedUsers" resultMap="UserMapper">
+    <select id="getPaginatedUsers" resultMap="UserResultMap">
         SELECT * FROM users_tbl ORDER BY id LIMIT #{limit} OFFSET #{offset}
     </select>
 

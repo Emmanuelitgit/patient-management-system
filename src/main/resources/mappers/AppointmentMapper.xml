@@ -2,46 +2,84 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="patient_management_system.dao.AppointmentMapper">
 
-    <resultMap id="AppointmentResultMap" type="patient_management_system.models.Appointment">
+    <resultMap id="AppointmentDTOMap" type="patient_management_system.dto.AppointmentDTO">
         <id column="id" property="id"/>
         <result column="doctor_id" property="doctorId"/>
         <result column="patient_id" property="patientId"/>
+        <result column="doctor" property="doctor"/>
+        <result column="patient" property="patient"/>
         <result column="date" property="date"/>
-        <result column="time" property="time"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
         <result column="status" property="status"/>
         <result column="remarks" property="remarks"/>
-        <result column="capacity" property="capacity"/>
         <result column="created_at" property="createdAt"/>
         <result column="created_by" property="createdBy"/>
         <result column="updated_at" property="updatedAt"/>
         <result column="updated_by" property="updatedBy"/>
     </resultMap>
 
-    <select id="findAll" resultMap="AppointmentResultMap">
-        SELECT * FROM appointments_tbl
+    <resultMap id="AppointmentResultMap" type="patient_management_system.models.Appointment">
+        <id column="id" property="id"/>
+        <result column="doctor_id" property="doctor"/>
+        <result column="patient_id" property="patient"/>
+        <result column="date" property="date"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="status" property="status"/>
+        <result column="remarks" property="remarks"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="updated_by" property="updatedBy"/>
+    </resultMap>
+
+    <select id="findAll" resultMap="AppointmentDTOMap">
+        SELECT a.remarks,a.status,a.date,a.start_time,a.end_time,
+        p.name AS patient,u.name AS doctor,a.created_at,a.created_by,
+        a.updated_at,a.updated_by,a.patient_id,a.doctor_id,a.id
+        FROM appointments_tbl a
+        JOIN users_tbl u ON u.id=a.doctor_id
+        JOIN patients_tbl p ON p.id=a.patient_id
+        <where>
+            <if test="search != null and !search.isEmpty()">
+                (
+                LOWER(p.name) LIKE CONCAT('%', LOWER(#{search}), '%')
+                OR LOWER(u.name) LIKE CONCAT('%', LOWER(#{search}), '%')
+                OR CAST(a.created_at AS CHAR) LIKE CONCAT('%', LOWER(#{search}), '%')
+                OR LOWER(a.status) LIKE CONCAT('%', LOWER(#{search}), '%')
+                )
+            </if>
+        </where>
+    </select>
+
+    <select id="fetchAppointmentsById" resultMap="AppointmentDTOMap" parameterType="string">
+        SELECT a.remarks,a.status,a.date,a.start_time,a.end_time,
+        p.name AS patient,u.name AS doctor,a.created_at,a.created_by,
+        a.updated_at,a.updated_by,a.patient_id,a.doctor_id,a.id
+        FROM appointments_tbl a
+        JOIN users_tbl u ON u.id=a.doctor_id
+        JOIN patients_tbl p ON p.id=a.patient_id
+        WHERE a.id=#{id}
     </select>
 
     <select id="findById" resultMap="AppointmentResultMap" parameterType="string">
-        SELECT * FROM appointments_tbl WHERE id = #{id}
+        SELECT * FROM appointments_tbl WHERE id=#{id}
     </select>
 
-    <select id="findByEmail" resultMap="AppointmentResultMap" parameterType="string">
-        SELECT * FROM appointments_tbl WHERE email = #{email}
-    </select>
-
-    <insert id="addUser">
+    <insert id="addAppointment">
         INSERT INTO
-            appointments_tbl(id,doctor_id,patient_id,date,time,
-            status,remarks,capacity,created_at,created_by)
-        VALUES(#{id},#{doctorId},#{patientId},#{date},#{time},
-               #{status},#{remarks},#{capacity},#{createdAt},#{createdBy})
+            appointments_tbl(id,doctor_id,patient_id,date,start_time,
+            end_time,status,remarks,created_at,created_by)
+        VALUES(#{id},#{doctorId},#{patientId},#{date},#{startTime},#{endTime},
+               #{status},#{remarks},#{createdAt},#{createdBy})
     </insert>
 
     <update id="updateById">
         UPDATE appointments_tbl
         SET doctor_id=#{doctorId},patient_id=#{patientId},date=#{date},
-        time=#{time},remarks=#{remarks},status=#{status},updated_at=#{updatedAt},
-        capacity=#{capacity},updated_by=#{updatedBy}
+        start_time=#{startTime},end_time=#{endTime},remarks=#{remarks},status=#{status},
+        updated_at=#{updatedAt},updated_by=#{updatedBy}
         WHERE id = #{id}
     </update>
 
@@ -63,14 +101,27 @@
            OR (start_time BETWEEN #{startTime} AND #{endTime})
            OR (end_time BETWEEN #{startTime} AND #{endTime})
             )
+        <if test="appointmentId !=null and !appointmentId.isEmpty()">
+            AND id != #{appointmentId}
+        </if>
     </select>
 
-    <select id="getPaginatedAppointments" resultMap="AppointmentMapper">
+    <select id="getPaginatedAppointments" resultMap="AppointmentResultMap">
         SELECT * FROM appointments_tbl ORDER BY id LIMIT #{limit} OFFSET #{offset}
     </select>
 
     <select id="countAllAppointments" resultType="int">
         SELECT COUNT(*) FROM appointments_tbl
+    </select>
+
+    <select id="fetchAppointmentsForDoctor" resultMap="AppointmentDTOMap">
+        SELECT a.remarks,a.status,a.date,a.start_time,a.end_time,
+        p.name AS patient,u.name AS doctor,a.created_at,a.created_by,
+        a.updated_at,a.updated_by,a.patient_id,a.doctor_id,a.id
+        FROM appointments_tbl a
+        JOIN users_tbl u ON u.id=a.doctor_id
+        JOIN patients_tbl p ON p.id=a.patient_id
+        WHERE a.doctor_id=#{doctorId}
     </select>
 
 </mapper>

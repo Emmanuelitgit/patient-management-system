@@ -1,5 +1,7 @@
 package patient_management_system.dao;
 
+import org.apache.ibatis.annotations.Mapper;
+import patient_management_system.dto.AppointmentDTO;
 import patient_management_system.models.Appointment;
 
 import java.time.LocalDate;
@@ -7,10 +9,11 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
+@Mapper
 public interface AppointmentMapper {
-    List<Appointment> findAll();
+    List<AppointmentDTO> findAll(String search);
     Optional<Appointment> findById(String id);
-    Optional<Appointment> findByEmail(String email);
+    Optional<AppointmentDTO> fetchAppointmentsById(String id);
     Integer addAppointment(Appointment appointment);
     Integer updateById(Appointment appointment);
     Integer deleteById(String id);
@@ -18,7 +21,9 @@ public interface AppointmentMapper {
     Integer checkOverLapping(LocalDate date,
                              LocalTime startTime,
                              LocalTime endTime,
-                             String doctorId);
+                             String doctorId,
+                             String appointmentId);
+    List<AppointmentDTO> fetchAppointmentsForDoctor(String doctorId);
     Integer countAllAppointments();
     List<Appointment> getPaginatedAppointments(Integer limit, Integer offset);
 }

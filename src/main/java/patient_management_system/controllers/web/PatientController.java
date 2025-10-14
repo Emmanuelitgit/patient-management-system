@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import patient_management_system.controllers.api.PatientRest;
 import patient_management_system.dto.ResponseDTO;
 import patient_management_system.models.Patient;
 import patient_management_system.service.PatientService;
@@ -82,4 +81,5 @@ public class PatientController {
 
         return "redirect:/view/patients";
     }
+
 }

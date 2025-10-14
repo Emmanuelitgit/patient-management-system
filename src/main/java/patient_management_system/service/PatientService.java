@@ -1,6 +1,7 @@
 package patient_management_system.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -254,6 +255,83 @@ public class PatientService {
              */
             log.info("Patient record was deleted successfully");
             responseDTO = AppUtils.getResponseDto("Patient record was deleted successfully", HttpStatus.OK);
+            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+
+        }catch (Exception e) {
+            log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
+            ResponseDTO  response = AppUtils.getResponseDto(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    /**
+     * @description This method is used to fetch paginated list of patients with limit
+     * @param size The number of patients to be fetched for a given page
+     * @param page The target page for a records to be fetched on
+     * @return ResponseEntity containing the retrieved patients and status info
+     * @auther Emmanuel Yidana
+     * @createdAt 13th October 2025
+     */
+    public ResponseEntity<ResponseDTO> getPaginatedPatients(Integer size, Integer page){
+        try {
+            ResponseDTO responseDTO;
+            log.info("In fetch paginated patients method");
+
+            /**
+             * fetch from db if exist
+             */
+            log.info("About to load paginated patient from db");
+            int offset = (page-1)*size;
+            List<Patient> patients = patientMapper.getPaginatedPatients(size, offset);
+            if (patients.isEmpty()){
+                log.error("No patient record found");
+                responseDTO = AppUtils.getResponseDto("No patient record found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
+            }
+
+            /**
+             * return response on success
+             */
+            log.info("Patients records was fetched successfully");
+            responseDTO = AppUtils.getResponseDto("Patients records was fetched successfully", HttpStatus.OK, patients);
+            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+
+        }catch (Exception e) {
+            log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
+            ResponseDTO  response = AppUtils.getResponseDto(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    /**
+     * @description This method is used to get patients total count from db
+     * @return ResponseEntity containing the retrieved patients count and status info
+     * @auther Emmanuel Yidana
+     * @createdAt 13th October 2025
+     */
+    public ResponseEntity<ResponseDTO> countAllPatients(){
+        try {
+            ResponseDTO responseDTO;
+            log.info("In count all patients method");
+
+            /**
+             * load count from db
+             */
+            log.info("About to load patients count from db");
+            Integer patientsCount = patientMapper.countAllPatients();
+            if (patientsCount==null){
+                log.info("No patient count exist");
+                responseDTO = AppUtils.getResponseDto("No patient count exist", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+            }
+
+            /**
+             * return response on success
+             */
+            log.info("Patients count was fetched successfully");
+            responseDTO = AppUtils.getResponseDto("Patients count was fetched successfully", HttpStatus.OK,patientsCount);
             return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 
         }catch (Exception e) {
