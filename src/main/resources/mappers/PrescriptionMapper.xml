@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="patient_management_system.dao.PrescriptionMapper">
+
+    <resultMap id="PrescriptionResultMap" type="patient_management_system.models.Prescription">
+        <id column="id" property="id"/>
+        <result column="appointment_id" property="appointmentId"/>
+        <result column="patient_id" property="patientId"/>
+        <result column="doctor_id" property="doctorId"/>
+        <result column="medication" property="medication"/>
+        <result column="instructions" property="instructions"/>
+        <result column="dosage" property="dosage"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="updated_by" property="updatedBy"/>
+    </resultMap>
+
+    <resultMap id="PrescriptionDTOMap" type="patient_management_system.models.Prescription">
+        <id column="id" property="id"/>
+        <result column="appointment_id" property="appointmentId"/>
+        <result column="patient" property="patient"/>
+        <result column="doctor" property="doctor"/>
+        <result column="medication" property="medication"/>
+        <result column="instructions" property="instructions"/>
+        <result column="dosage" property="dosage"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="updated_by" property="updatedBy"/>
+    </resultMap>
+
+    <select id="findAll" resultMap="PrescriptionDTOMap">
+        SELECT p.medication,p.dosage,p.instructions,p.created_at,
+        p.created_by,p.updated_at,p.updated_by,u.name,pa.name
+        FROM prescriptions_tbl p
+        JOIN patients_tbl pa ON pa.id=p.patient_id
+        JOIN users_tbl u ON u.id=p.doctor_id
+    </select>
+
+    <select id="fetchPrescriptionsById" resultMap="PrescriptionDTOMap" parameterType="string">
+        SELECT p.medication,p.dosage,p.instructions,p.created_at,
+        p.created_by,p.updated_at,p.updated_by,u.name,pa.name
+        FROM prescriptions_tbl p
+        JOIN patients_tbl pa ON pa.id=p.patient_id
+        JOIN users_tbl u ON u.id=p.doctor_id
+        WHERE id = #{id}
+    </select>
+
+    <select id="findById" resultMap="PrescriptionResultMap" parameterType="string">
+        SELECT * FROM prescriptions_tbl WHERE id = #{id}
+    </select>
+
+    <insert id="addPrescription">
+        INSERT INTO
+        prescriptions_tbl
+        (id,appointment_id,patient_id,doctor_id,medication,
+        dosage,instructions,created_at,created_by)
+        VALUES(#{id},#{appointmentId},#{patientId},#{doctorId},#{medication},
+        #{dosage},#{instructions},#{createdAt},#{createdBy})
+    </insert>
+
+    <update id="updateById">
+        UPDATE prescriptions_tbl
+        SET medication=#{medication},instructions=#{instructions},
+        dosage=#{dosage},updated_at=#{updatedAt},updated_by=#{updatedBy}
+        WHERE id=#{id}
+    </update>
+
+    <delete id="deleteById" parameterType="string">
+        DELETE FROM prescriptions_tbl WHERE id = #{id}
+    </delete>
+
+    <select id="getPaginatedPrescriptions" resultMap="PrescriptionDTOMap">
+        SELECT p.medication,p.dosage,p.instructions,p.created_at,
+        p.created_by,p.updated_at,p.updated_by,u.name,pa.name
+        FROM prescriptions_tbl p
+        JOIN patients_tbl pa ON pa.id=p.patient_id
+        JOIN users_tbl u ON u.id=p.doctor_id
+        ORDER BY id LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countAllPrescriptions" resultType="int">
+        SELECT COUNT(*) FROM prescriptions_tbl
+    </select>
+
+</mapper>

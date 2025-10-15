@@ -8,18 +8,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import patient_management_system.dto.ResponseDTO;
 import patient_management_system.models.Patient;
-import patient_management_system.service.PatientService;
+import patient_management_system.serviceImpl.PatientServiceImpl;
 
 @Tag(name = "Patient Management")
 @RestController
 @RequestMapping("/api/patients")
 public class PatientRest {
 
-    private final PatientService patientService;
+    private final PatientServiceImpl patientServiceImpl;
 
     @Autowired
-    public PatientRest(PatientService patientService) {
-        this.patientService = patientService;
+    public PatientRest(PatientServiceImpl patientServiceImpl) {
+        this.patientServiceImpl = patientServiceImpl;
     }
 
     @Operation(summary = "This endpoint is used to fetch all patients")
@@ -28,32 +28,32 @@ public class PatientRest {
                                                @RequestParam(name = "page", defaultValue = "1") int page,
                                                @RequestParam(name = "size", defaultValue = "10") int size){
         if (paginate){
-            return patientService.getPaginatedPatients(size, page);
+            return patientServiceImpl.getPaginatedPatients(size, page);
         }
-        return patientService.findAll();
+        return patientServiceImpl.findAll();
     }
 
     @Operation(summary = "This endpoint is used to fetch patient records by id")
     @GetMapping(value = "/{id}")
     public ResponseEntity<ResponseDTO> findById(@PathVariable String id){
-        return patientService.findById(id);
+        return patientServiceImpl.findById(id);
     }
 
     @Operation(summary = "This endpoint is used to add new patient")
     @PostMapping
     public ResponseEntity<ResponseDTO> addPatient(@RequestBody @Valid Patient patient){
-        return patientService.addPatient(patient);
+        return patientServiceImpl.addPatient(patient);
     }
 
     @Operation(summary = "This method is used to update patient record by id")
     @PutMapping
     public ResponseEntity<ResponseDTO> updateById(@RequestBody Patient patient){
-        return patientService.updateById(patient);
+        return patientServiceImpl.updateById(patient);
     }
 
     @Operation(summary = "This method is used to delete a patient record by id")
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseDTO> deleteById(@PathVariable String id){
-        return patientService.deleteById(id);
+        return patientServiceImpl.deleteById(id);
     }
 }

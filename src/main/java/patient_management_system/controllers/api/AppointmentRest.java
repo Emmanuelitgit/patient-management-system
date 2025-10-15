@@ -8,19 +8,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import patient_management_system.dto.ResponseDTO;
 import patient_management_system.models.Appointment;
-import patient_management_system.service.AppointmentService;
-
-import java.time.LocalTime;
+import patient_management_system.serviceImpl.AppointmentServiceImpl;
 
 @Tag(name = "Appointment Management")
 @RestController
 @RequestMapping("/api/appointments")
 public class AppointmentRest {
-    private final AppointmentService appointmentService;
+    private final AppointmentServiceImpl appointmentServiceImpl;
 
     @Autowired
-    public AppointmentRest(AppointmentService appointmentService) {
-        this.appointmentService = appointmentService;
+    public AppointmentRest(AppointmentServiceImpl appointmentServiceImpl) {
+        this.appointmentServiceImpl = appointmentServiceImpl;
     }
 
     @Operation(summary = "This endpoint is used to fetch all appointments records")
@@ -28,38 +26,39 @@ public class AppointmentRest {
     public ResponseEntity<ResponseDTO> findAll(@RequestParam(name = "search", required = false) String search,
                                                @RequestParam(name = "startTime", required = false)String startTime,
                                                @RequestParam(name = "endTime", required = false) String endTime){
-        return appointmentService.findAll(search,startTime,endTime);
+        return appointmentServiceImpl.findAll(search,startTime,endTime);
     }
 
     @Operation(summary = "This endpoint is used to fetched appointment record by id")
     @GetMapping("/{id}")
     public ResponseEntity<ResponseDTO> findById(@PathVariable String id){
-        return appointmentService.findById(id);
+        return appointmentServiceImpl.findById(id);
     }
 
     @Operation(summary = "This endpoint is used to schedule an appointment")
     @PostMapping
     public ResponseEntity<ResponseDTO> addAppointment(@RequestBody @Valid Appointment appointment){
-        return appointmentService.addAppointment(appointment);
+        return appointmentServiceImpl.addAppointment(appointment);
     }
 
     @Operation(summary = "This endpoint is used to update an appointment record by id")
     @PutMapping
     public ResponseEntity<ResponseDTO> updateById(@RequestBody Appointment appointment){
-        return appointmentService.updateById(appointment);
+        return appointmentServiceImpl.updateById(appointment);
     }
 
     @Operation(summary = "This endpoint is used to deleted an appointment record by id")
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseDTO> deleteById(@PathVariable String id){
-        return appointmentService.deleteById(id);
+        return appointmentServiceImpl.deleteById(id);
     }
 
+    @Operation(summary = "This endpoint is used to fetch appointments for logged-in doctor")
     @GetMapping("/for-doctor")
     public ResponseEntity<ResponseDTO> fetchAppointmentsForDoctor(@RequestParam(name = "doctorId") String doctorId,
                                                                   @RequestParam(name = "search",required = false) String search,
                                                                   @RequestParam(name = "startTime",required = false) String startTime,
                                                                   @RequestParam(name = "endTime",required = false) String endTime){
-        return appointmentService.fetchAppointmentsForDoctor(doctorId,search,startTime,endTime);
+        return appointmentServiceImpl.fetchAppointmentsForDoctor(doctorId,search,startTime,endTime);
     }
 }

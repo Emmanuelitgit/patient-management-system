@@ -9,23 +9,23 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import patient_management_system.dto.ResponseDTO;
 import patient_management_system.models.Patient;
-import patient_management_system.service.PatientService;
+import patient_management_system.serviceImpl.PatientServiceImpl;
 
 @Slf4j
 @Controller
 @RequestMapping("/view")
 public class PatientController {
 
-    private final PatientService patientService;
+    private final PatientServiceImpl patientServiceImpl;
 
     @Autowired
-    public PatientController(PatientService patientService) {
-        this.patientService = patientService;
+    public PatientController(PatientServiceImpl patientServiceImpl) {
+        this.patientServiceImpl = patientServiceImpl;
     }
 
     @GetMapping("/patients")
     public String viewPatients(Model model){
-        ResponseEntity<ResponseDTO> response = patientService.findAll();
+        ResponseEntity<ResponseDTO> response = patientServiceImpl.findAll();
         if (response.getStatusCode().is2xxSuccessful()){
             log.info("Status:->>{}", response.getStatusCode());
         }
@@ -42,7 +42,7 @@ public class PatientController {
 
     @PostMapping("/addPatient")
     public String addPatient(@ModelAttribute @Valid Patient patient){
-        ResponseEntity<ResponseDTO> response = patientService.addPatient(patient);
+        ResponseEntity<ResponseDTO> response = patientServiceImpl.addPatient(patient);
         if (!response.getStatusCode().is2xxSuccessful()){}
 
         return "redirect:/view/patients";
@@ -50,7 +50,7 @@ public class PatientController {
 
     @GetMapping("/viewPatient/{id}")
     public String viewPatient(@PathVariable String id, Model model){
-        ResponseEntity<ResponseDTO> response = patientService.findById(id);
+        ResponseEntity<ResponseDTO> response = patientServiceImpl.findById(id);
         if (!response.getStatusCode().is2xxSuccessful()){}
 
         model.addAttribute("patient", response.getBody().getData());
@@ -60,7 +60,7 @@ public class PatientController {
 
     @GetMapping("/updatePatientForm/{id}")
     public String showUpdatePatientForm(@PathVariable String id, Model model){
-        ResponseEntity<ResponseDTO> existingPatient = patientService.findById(id);
+        ResponseEntity<ResponseDTO> existingPatient = patientServiceImpl.findById(id);
         model.addAttribute("patient", existingPatient);
 
         return "updatePatient";
@@ -68,7 +68,7 @@ public class PatientController {
 
     @PutMapping("/updatePatient")
     public String updatePatient(@ModelAttribute Patient patient){
-        ResponseEntity<ResponseDTO> response = patientService.updateById(patient);
+        ResponseEntity<ResponseDTO> response = patientServiceImpl.updateById(patient);
         if (!response.getStatusCode().is2xxSuccessful()){}
 
         return "redirect:/view/patients";
@@ -76,7 +76,7 @@ public class PatientController {
 
     @DeleteMapping("/deletePatient/{id}")
     public String deletePatient(@PathVariable String id){
-        ResponseEntity<ResponseDTO> response = patientService.deleteById(id);
+        ResponseEntity<ResponseDTO> response = patientServiceImpl.deleteById(id);
         if (!response.getStatusCode().is2xxSuccessful()){}
 
         return "redirect:/view/patients";
