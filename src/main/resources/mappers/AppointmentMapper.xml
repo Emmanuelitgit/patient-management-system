@@ -35,23 +35,49 @@
     </resultMap>
 
     <select id="findAll" resultMap="AppointmentDTOMap">
-        SELECT a.remarks,a.status,a.date,a.start_time,a.end_time,
-        p.name AS patient,u.name AS doctor,a.created_at,a.created_by,
-        a.updated_at,a.updated_by,a.patient_id,a.doctor_id,a.id
+        SELECT
+        a.remarks, a.status, a.date, a.start_time, a.end_time,
+        p.name AS patient, u.name AS doctor,
+        a.created_at, a.created_by, a.updated_at, a.updated_by,
+        a.patient_id, a.doctor_id, a.id
         FROM appointments_tbl a
-        JOIN users_tbl u ON u.id=a.doctor_id
-        JOIN patients_tbl p ON p.id=a.patient_id
+        JOIN users_tbl u ON u.id = a.doctor_id
+        JOIN patients_tbl p ON p.id = a.patient_id
         <where>
-            <if test="search != null and !search.isEmpty()">
-                (
-                LOWER(p.name) LIKE CONCAT('%', LOWER(#{search}), '%')
-                OR LOWER(u.name) LIKE CONCAT('%', LOWER(#{search}), '%')
-                OR CAST(a.created_at AS CHAR) LIKE CONCAT('%', LOWER(#{search}), '%')
-                OR LOWER(a.status) LIKE CONCAT('%', LOWER(#{search}), '%')
-                )
-            </if>
+            <choose>
+                <when test="search != null and search != ''">
+                    (
+                    LOWER(p.name) LIKE CONCAT('%', LOWER(#{search}), '%')
+                    OR LOWER(u.name) LIKE CONCAT('%', LOWER(#{search}), '%')
+                    OR CAST(a.created_at AS CHAR) LIKE CONCAT('%', LOWER(#{search}), '%')
+                    OR LOWER(a.status) LIKE CONCAT('%', LOWER(#{search}), '%')
+                    )
+                </when>
+
+                <when test="startTime !=null and endTime !=null">
+                    (
+                    a.start_time BETWEEN #{startTime} AND #{endTime}
+                    OR a.end_time BETWEEN #{startTime} AND #{endTime}
+                    OR #{startTime} BETWEEN a.start_time AND a.end_time
+                    OR #{endTime} BETWEEN a.start_time AND a.end_time
+                    )
+                </when>
+
+                <when test="startTime !=null">
+                    a.start_time = #{startTime}
+                </when>
+
+                <when test="endTime !=null">
+                    a.end_time = #{endTime}
+                </when>
+
+                <otherwise>
+                    a.id IS NOT NULL
+                </otherwise>
+            </choose>
         </where>
     </select>
+
 
     <select id="fetchAppointmentsById" resultMap="AppointmentDTOMap" parameterType="string">
         SELECT a.remarks,a.status,a.date,a.start_time,a.end_time,
@@ -121,7 +147,40 @@
         FROM appointments_tbl a
         JOIN users_tbl u ON u.id=a.doctor_id
         JOIN patients_tbl p ON p.id=a.patient_id
-        WHERE a.doctor_id=#{doctorId}
+        <where>
+        a.doctor_id=#{doctorId}
+            <choose>
+                <when test="search != null and search != ''">
+                    AND (
+                    LOWER(p.name) LIKE CONCAT('%', LOWER(#{search}), '%')
+                    OR LOWER(u.name) LIKE CONCAT('%', LOWER(#{search}), '%')
+                    OR CAST(a.created_at AS CHAR) LIKE CONCAT('%', LOWER(#{search}), '%')
+                    OR LOWER(a.status) LIKE CONCAT('%', LOWER(#{search}), '%')
+                    )
+                </when>
+
+                <when test="startTime !=null and endTime !=null">
+                    AND (
+                    a.start_time BETWEEN #{startTime} AND #{endTime}
+                    OR a.end_time BETWEEN #{startTime} AND #{endTime}
+                    OR #{startTime} BETWEEN a.start_time AND a.end_time
+                    OR #{endTime} BETWEEN a.start_time AND a.end_time
+                    )
+                </when>
+
+                <when test="startTime !=null">
+                   AND a.start_time = #{startTime}
+                </when>
+
+                <when test="endTime !=null">
+                    AND a.end_time = #{endTime}
+                </when>
+
+                <otherwise>
+                    AND a.id IS NOT NULL
+                </otherwise>
+            </choose>
+        </where>
     </select>
 
 </mapper>

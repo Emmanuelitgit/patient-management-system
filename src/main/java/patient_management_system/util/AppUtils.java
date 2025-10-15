@@ -1,23 +1,15 @@
 package patient_management_system.util;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import patient_management_system.dto.PaginationPayload;
 import patient_management_system.dto.ResponseDTO;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -153,13 +145,23 @@ public class AppUtils {
 
     /**
      * @description a method to convert a string date to local date on the (yyyy-MM-dd) date format
-     * @param startDate
-     * @return
+     * @param date the string date toe be converted
+     * @return converted date in localDate format
      */
-    public static LocalDate convertStringToLocalDateTime(String startDate) {
+    public static LocalDate convertStringToLocalDateTime(String date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        return LocalDate.parse(startDate, formatter);
+        return LocalDate.parse(date, formatter);
 
+    }
+
+    /**
+     * @description a method to convert a string time to local time on the (H:mm:ss) date format
+     * @param time the string time to be converted
+     * @return converted time in localTime format
+     */
+    public static LocalTime convertStringToLocalTime(String time) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("H:mm:ss");
+        return LocalTime.parse(time, formatter);
     }
 
 }

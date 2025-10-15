@@ -10,6 +10,8 @@ import patient_management_system.dto.ResponseDTO;
 import patient_management_system.models.Appointment;
 import patient_management_system.service.AppointmentService;
 
+import java.time.LocalTime;
+
 @Tag(name = "Appointment Management")
 @RestController
 @RequestMapping("/api/appointments")
@@ -23,8 +25,10 @@ public class AppointmentRest {
 
     @Operation(summary = "This endpoint is used to fetch all appointments records")
     @GetMapping
-    public ResponseEntity<ResponseDTO> findAll(@RequestParam(name = "search", required = false) String search){
-        return appointmentService.findAll(search);
+    public ResponseEntity<ResponseDTO> findAll(@RequestParam(name = "search", required = false) String search,
+                                               @RequestParam(name = "startTime", required = false)String startTime,
+                                               @RequestParam(name = "endTime", required = false) String endTime){
+        return appointmentService.findAll(search,startTime,endTime);
     }
 
     @Operation(summary = "This endpoint is used to fetched appointment record by id")
@@ -52,7 +56,10 @@ public class AppointmentRest {
     }
 
     @GetMapping("/for-doctor")
-    public ResponseEntity<ResponseDTO> fetchAppointmentsForDoctor(@RequestParam(name = "doctorId") String doctorId){
-        return appointmentService.fetchAppointmentsForDoctor(doctorId);
+    public ResponseEntity<ResponseDTO> fetchAppointmentsForDoctor(@RequestParam(name = "doctorId") String doctorId,
+                                                                  @RequestParam(name = "search",required = false) String search,
+                                                                  @RequestParam(name = "startTime",required = false) String startTime,
+                                                                  @RequestParam(name = "endTime",required = false) String endTime){
+        return appointmentService.fetchAppointmentsForDoctor(doctorId,search,startTime,endTime);
     }
 }

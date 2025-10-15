@@ -47,16 +47,28 @@ public class AppointmentService {
      * @auther Emmanuel Yidana
      * @createdAt 10th October 2025
      */
-    public ResponseEntity<ResponseDTO> findAll(String search){
+    public ResponseEntity<ResponseDTO> findAll(String search,String startTime,String endTime){
         try {
             ResponseDTO responseDTO;
             log.info("In ge all appointments method");
 
             /**
+             * cast time if provided
+             */
+            LocalTime convertedStartTime = null;
+            LocalTime convertedEndTime = null;
+            if (startTime!=null && !startTime.isEmpty()){
+                convertedStartTime = AppUtils.convertStringToLocalTime(startTime);
+            }
+            if (endTime !=null && !endTime.isEmpty()){
+                convertedEndTime = AppUtils.convertStringToLocalTime(endTime);
+            }
+
+            /**
              * load data from db
              */
             log.info("About to load appointments from db...");
-            List<AppointmentDTO> appointments = appointmentMapper.findAll(search);
+            List<AppointmentDTO> appointments = appointmentMapper.findAll(search,convertedStartTime,convertedEndTime);
             if (appointments.isEmpty()){
                 log.error("No appointment record found");
                 responseDTO = AppUtils.getResponseDto("No appointment record found", HttpStatus.NOT_FOUND);
@@ -382,10 +394,23 @@ public class AppointmentService {
      * @auther Emmanuel Yidana
      * @createdAt 14th October 2025
      */
-    public ResponseEntity<ResponseDTO> fetchAppointmentsForDoctor(String doctorId){
+    public ResponseEntity<ResponseDTO> fetchAppointmentsForDoctor(String doctorId,String search,String startTime,String endTime){
         try {
             ResponseDTO responseDTO;
             log.info("In fetch appointments for doctor method:->>{}", doctorId);
+
+            /**
+             * cast time if provided
+             */
+            LocalTime convertedStartTime = null;
+            LocalTime convertedEndTime = null;
+            if (startTime!=null && !startTime.isEmpty()){
+                convertedStartTime = AppUtils.convertStringToLocalTime(startTime);
+            }
+            if (endTime !=null && !endTime.isEmpty()){
+                convertedEndTime = AppUtils.convertStringToLocalTime(endTime);
+            }
+
             /**
              * check if record exist
              */
@@ -400,7 +425,7 @@ public class AppointmentService {
              * load appointments for doctor
              */
             log.info("About to load appointments for doctor");
-            List<AppointmentDTO> appointments = appointmentMapper.fetchAppointmentsForDoctor(doctorId);
+            List<AppointmentDTO> appointments = appointmentMapper.fetchAppointmentsForDoctor(doctorId,search,convertedStartTime,convertedEndTime);
             if (appointments.isEmpty()){
                 log.error("No appointment record found for logged-in doctor");
                 responseDTO = AppUtils.getResponseDto("No appointment record found for logged-in doctor", HttpStatus.NOT_FOUND);

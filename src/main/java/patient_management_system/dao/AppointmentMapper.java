@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Mapper
 public interface AppointmentMapper {
-    List<AppointmentDTO> findAll(String search);
+    List<AppointmentDTO> findAll(String search,LocalTime startTime,LocalTime endTime);
     Optional<Appointment> findById(String id);
     Optional<AppointmentDTO> fetchAppointmentsById(String id);
     Integer addAppointment(Appointment appointment);
@@ -23,7 +23,10 @@ public interface AppointmentMapper {
                              LocalTime endTime,
                              String doctorId,
                              String appointmentId);
-    List<AppointmentDTO> fetchAppointmentsForDoctor(String doctorId);
+    List<AppointmentDTO> fetchAppointmentsForDoctor(String doctorId,
+                                                    String search,
+                                                    LocalTime startTime,
+                                                    LocalTime endTime);
     Integer countAllAppointments();
     List<Appointment> getPaginatedAppointments(Integer limit, Integer offset);
 }
