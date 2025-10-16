@@ -11,9 +11,10 @@ public class PrescriptionDTO {
     private String patient;
     private String doctor;
     private String medication;
-    private Float dosage;
+    private String dosage;
+    private String status;
     private String instructions;
-    private LocalDate createAt;
+    private LocalDate createdAt;
     private LocalDate updatedAt;
     private String createdBy;
     private String updatedBy;

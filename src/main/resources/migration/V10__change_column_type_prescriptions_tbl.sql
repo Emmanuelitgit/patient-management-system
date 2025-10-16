@@ -1,0 +1,2 @@
+ALTER TABLE prescriptions_tbl
+MODIFY COLUMN dosage VARCHAR(50) NOT NULL;

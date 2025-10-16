@@ -21,8 +21,8 @@
 
     <resultMap id="AppointmentResultMap" type="patient_management_system.models.Appointment">
         <id column="id" property="id"/>
-        <result column="doctor_id" property="doctor"/>
-        <result column="patient_id" property="patient"/>
+        <result column="doctor_id" property="doctorId"/>
+        <result column="patient_id" property="patientId"/>
         <result column="date" property="date"/>
         <result column="start_time" property="startTime"/>
         <result column="end_time" property="endTime"/>
