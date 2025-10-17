@@ -9,7 +9,7 @@ import java.util.Optional;
 
 @Mapper
 public interface LabMapper {
-    List<Patient> findAll(String search, Integer limit, Integer offset);
+    List<Lab> findAll(String search, Integer limit, Integer offset);
     Optional<Lab> findById(String id);
     Optional<Lab> findByEmail(String email);
     Integer addLab(Lab lab);
