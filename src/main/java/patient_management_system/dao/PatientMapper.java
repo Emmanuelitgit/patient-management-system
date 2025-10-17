@@ -8,7 +8,7 @@ import java.util.Optional;
 
 @Mapper
 public interface PatientMapper {
-    List<Patient> findAll();
+    List<Patient> findAll(String search, Integer limit, Integer offset);
     Optional<Patient> findById(String id);
     Optional<Patient> findByEmail(String email);
     Integer addPatient(Patient patient);

@@ -24,8 +24,10 @@ public class UserRest {
 
     @Operation(summary = "This endpoint is used to fetch all users from the db")
     @GetMapping
-    public ResponseEntity<ResponseDTO> findAll(){
-        return userServiceImpl.findAll();
+    public ResponseEntity<ResponseDTO> findAll(@RequestParam(name = "search", required = false) String search,
+                                               @RequestParam(name = "size", required = false,defaultValue = "10") Integer size,
+                                               @RequestParam(value = "page", required = false, defaultValue = "1") Integer page){
+        return userServiceImpl.findAll(search,size,page);
     }
 
     @Operation(summary = "This endpoint is used to fetch a user record by id")

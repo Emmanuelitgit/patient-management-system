@@ -25,8 +25,10 @@ public class AppointmentRest {
     @GetMapping
     public ResponseEntity<ResponseDTO> findAll(@RequestParam(name = "search", required = false) String search,
                                                @RequestParam(name = "startTime", required = false)String startTime,
-                                               @RequestParam(name = "endTime", required = false) String endTime){
-        return appointmentServiceImpl.findAll(search,startTime,endTime);
+                                               @RequestParam(name = "endTime", required = false) String endTime,
+                                               @RequestParam(name = "size", required = false,defaultValue = "10") Integer size,
+                                               @RequestParam(name = "page",required = false, defaultValue = "1") Integer page){
+        return appointmentServiceImpl.findAll(search,startTime,endTime,size,page);
     }
 
     @Operation(summary = "This endpoint is used to fetched appointment record by id")
@@ -58,7 +60,16 @@ public class AppointmentRest {
     public ResponseEntity<ResponseDTO> fetchAppointmentsForDoctor(@RequestParam(name = "doctorId") String doctorId,
                                                                   @RequestParam(name = "search",required = false) String search,
                                                                   @RequestParam(name = "startTime",required = false) String startTime,
-                                                                  @RequestParam(name = "endTime",required = false) String endTime){
-        return appointmentServiceImpl.fetchAppointmentsForDoctor(doctorId,search,startTime,endTime);
+                                                                  @RequestParam(name = "endTime",required = false) String endTime,
+                                                                  @RequestParam(name = "size", required = false, defaultValue = "10") Integer size,
+                                                                  @RequestParam(name = "page", required = false, defaultValue = "1") Integer page){
+        return appointmentServiceImpl.fetchAppointmentsForDoctor(doctorId,search,startTime,endTime,size,page);
+    }
+
+    @Operation(summary = "This endpoint is used to update appointment status")
+    @PutMapping("/status{id}")
+    public ResponseEntity<ResponseDTO> updateAppointmentStatus(@PathVariable String id,
+                                                               @RequestParam(name = "status") String status){
+        return appointmentServiceImpl.updateAppointmentStatus(id,status);
     }
 }

@@ -143,7 +143,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
             prescription.setCreatedBy(UUID.randomUUID().toString());
             prescription.setDoctorId(appointmentOptional.get().getDoctorId());
             prescription.setPatientId(appointmentOptional.get().getPatientId());
-            prescription.setStatus(AppConstants.PENDING);
+            prescription.setStatus(AppConstants.AWAITING_PAYMENT);
             Integer affectedRows = prescriptionMapper.addPrescription(prescription);
             if (affectedRows<0){
                 log.error("Prescription record failed to insert");

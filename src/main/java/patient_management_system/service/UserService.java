@@ -1,18 +1,13 @@
 package patient_management_system.service;
 
-import patient_management_system.models.Patient;
+import org.springframework.http.ResponseEntity;
+import patient_management_system.dto.ResponseDTO;
 import patient_management_system.models.User;
 
-import java.util.List;
-import java.util.Optional;
-
 public interface UserService {
-    List<User> findAll();
-    Optional<User> findById(String id);
-    Optional<User> findByEmail(String email);
-    Integer addUser(User user);
-    Integer updateById(User user);
-    Integer deleteById(String id);
-    Integer countAllUsers();
-    List<Patient> getPaginatedUsers(Integer limit, Integer offset);
+    ResponseEntity<ResponseDTO> findAll(String search,Integer size, Integer page);
+    ResponseEntity<ResponseDTO> findById(String id);
+    ResponseEntity<ResponseDTO> addUser(User user);
+    ResponseEntity<ResponseDTO> updateById(User user);
+    ResponseEntity<ResponseDTO> deleteById(String id);
 }

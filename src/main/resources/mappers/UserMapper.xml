@@ -17,7 +17,22 @@
     </resultMap>
 
     <select id="findAll" resultMap="UserResultMap">
-        SELECT * FROM users_tbl
+        SELECT * FROM users_tbl u
+        <where>
+            <if test="search !=null and search !=''">
+                (
+                   LOWER(u.name) LIKE CONCAT('%',LOWER(#{search}),'%')
+                   OR LOWER(u.email) LIKE CONCAT('%',LOWER(#{search}),'%')
+                   OR LOWER(u.phone) LIKE CONCAT('%',LOWER(#{search}),'%')
+                   OR LOWER(u.username) LIKE CONCAT('%',LOWER(#{search}),'%')
+                   OR CAST(u.created_at AS CHAR) LIKE CONCAT('%',LOWER(#{search}),'%')
+                )
+            </if>
+        </where>
+        ORDER BY u.created_at DESC
+        <if test="limit !=null and offset !=null">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
     </select>
 
     <select id="findById" resultMap="UserResultMap" parameterType="string">
@@ -30,10 +45,10 @@
 
     <insert id="addUser">
         INSERT INTO
-            users_tbl(id,name,email,username,phone,
-            password,role,enabled,created_at,created_by)
+        users_tbl(id,name,email,username,phone,
+        password,role,enabled,created_at,created_by)
         VALUES(#{id},#{name},#{email},#{username},#{phone},
-               #{password},#{role},#{enabled},#{createdAt},#{createdBy})
+        #{password},#{role},#{enabled},#{createdAt},#{createdBy})
     </insert>
 
     <update id="updateById">
@@ -47,10 +62,6 @@
     <delete id="deleteById" parameterType="string">
         DELETE FROM users_tbl WHERE id = #{id}
     </delete>
-
-    <select id="getPaginatedUsers" resultMap="UserResultMap">
-        SELECT * FROM users_tbl ORDER BY id LIMIT #{limit} OFFSET #{offset}
-    </select>
 
     <select id="countAllUsers" resultType="int">
         SELECT * FROM users_tbl ORDER BY id LIMIT #{limit} OFFSET #{offset}

@@ -76,10 +76,14 @@
                 </otherwise>
             </choose>
         </where>
+        ORDER BY a.created_at DESC
+        <if test="limit !=null and offset !=null">
+            LIMIT #{limit } OFFSET #{offset}
+        </if>
     </select>
 
 
-    <select id="fetchAppointmentsById" resultMap="AppointmentDTOMap" parameterType="string">
+    <select id="fetchAppointmentById" resultMap="AppointmentDTOMap" parameterType="string">
         SELECT a.remarks,a.status,a.date,a.start_time,a.end_time,
         p.name AS patient,u.name AS doctor,a.created_at,a.created_by,
         a.updated_at,a.updated_by,a.patient_id,a.doctor_id,a.id
@@ -132,10 +136,6 @@
         </if>
     </select>
 
-    <select id="getPaginatedAppointments" resultMap="AppointmentResultMap">
-        SELECT * FROM appointments_tbl ORDER BY id LIMIT #{limit} OFFSET #{offset}
-    </select>
-
     <select id="countAllAppointments" resultType="int">
         SELECT COUNT(*) FROM appointments_tbl
     </select>
@@ -181,6 +181,10 @@
                 </otherwise>
             </choose>
         </where>
+        ORDER BY a.created_at DESC
+        <if test="limit !=null and offset !=null">
+            LIMIT #{limit } OFFSET #{offset}
+        </if>
     </select>
 
 </mapper>

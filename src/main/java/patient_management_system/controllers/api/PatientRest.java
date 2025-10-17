@@ -24,13 +24,10 @@ public class PatientRest {
 
     @Operation(summary = "This endpoint is used to fetch all patients")
     @GetMapping
-    public ResponseEntity<ResponseDTO> findAll(@RequestParam(name = "paginate", defaultValue = "false") boolean paginate,
+    public ResponseEntity<ResponseDTO> findAll(@RequestParam(name = "search", required = false) String search,
                                                @RequestParam(name = "page", defaultValue = "1") int page,
                                                @RequestParam(name = "size", defaultValue = "10") int size){
-        if (paginate){
-            return patientServiceImpl.getPaginatedPatients(size, page);
-        }
-        return patientServiceImpl.findAll();
+        return patientServiceImpl.findAll(search, size, page);
     }
 
     @Operation(summary = "This endpoint is used to fetch patient records by id")

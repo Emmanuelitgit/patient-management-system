@@ -24,8 +24,8 @@ public class PatientController {
     }
 
     @GetMapping("/patients")
-    public String viewPatients(Model model){
-        ResponseEntity<ResponseDTO> response = patientServiceImpl.findAll();
+    public String viewPatients(Model model, String search, Integer size, Integer page){
+        ResponseEntity<ResponseDTO> response = patientServiceImpl.findAll(search, size, page);
         if (response.getStatusCode().is2xxSuccessful()){
             log.info("Status:->>{}", response.getStatusCode());
         }

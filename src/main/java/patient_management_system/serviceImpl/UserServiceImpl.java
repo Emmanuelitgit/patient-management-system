@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import patient_management_system.dao.UserMapper;
 import patient_management_system.dto.ResponseDTO;
 import patient_management_system.models.User;
+import patient_management_system.service.UserService;
 import patient_management_system.util.AppUtils;
 
 import java.time.LocalDate;
@@ -17,7 +18,7 @@ import java.util.UUID;
 
 @Service
 @Slf4j
-public class UserServiceImpl {
+public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     @Autowired
@@ -31,7 +32,8 @@ public class UserServiceImpl {
      * @auther Emmanuel Yidana
      * @createdAt 9th October 2025
      */
-    public ResponseEntity<ResponseDTO> findAll(){
+    @Override
+    public ResponseEntity<ResponseDTO> findAll(String search,Integer size, Integer page){
         try {
             ResponseDTO responseDTO;
             log.info("In get all users method");
@@ -39,7 +41,11 @@ public class UserServiceImpl {
              * load users from db
              */
             log.info("About to load users from db");
-            List<User> users = userMapper.findAll();
+            if (page <=0){
+                page=1;
+            }
+            Integer offset = (page-1)*size;
+            List<User> users = userMapper.findAll(search,size,offset);
             if (users.isEmpty()){
                 log.error("No user record found");
                 responseDTO = AppUtils.getResponseDto("No user record found", HttpStatus.NOT_FOUND);
@@ -66,6 +72,7 @@ public class UserServiceImpl {
      * @auther Emmanuel Yidana
      * @createdAt 9th October 2025
      */
+    @Override
     public ResponseEntity<ResponseDTO> findById(String id){
         try {
             ResponseDTO responseDTO;
@@ -102,6 +109,7 @@ public class UserServiceImpl {
      * @auther Emmanuel Yidana
      * @createdAt 9th October 2025
      */
+    @Override
     public ResponseEntity<ResponseDTO> addUser(User user){
         try {
             ResponseDTO responseDTO;
@@ -162,6 +170,7 @@ public class UserServiceImpl {
      * @auther Emmanuel Yidana
      * @createdAt 9th October 2025
      */
+    @Override
     public ResponseEntity<ResponseDTO> updateById(User user){
         try {
             ResponseDTO responseDTO;
@@ -229,6 +238,7 @@ public class UserServiceImpl {
      * @auther Emmanuel Yidana
      * @createdAt 9th October 2025
      */
+    @Override
     public ResponseEntity<ResponseDTO> deleteById(String id){
         try {
             ResponseDTO responseDTO;

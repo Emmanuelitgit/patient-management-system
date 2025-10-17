@@ -23,6 +23,8 @@ public interface AppConstants {
 
     public final String CANCELLED = "CANCELLED";
 
+    public final String AWAITING_PAYMENT = "AWAITING_PAYMENT";
+
     public final String PENDING = "PENDING";
 
     public final String SCHEDULED = "SCHEDULED";

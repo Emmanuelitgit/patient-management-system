@@ -47,11 +47,10 @@ public class AppointmentServiceImpl implements AppointmentService {
      * @createdAt 10th October 2025
      */
     @Override
-    public ResponseEntity<ResponseDTO> findAll(String search,String startTime,String endTime){
+    public ResponseEntity<ResponseDTO> findAll(String search,String startTime,String endTime,Integer size,Integer page){
         try {
             ResponseDTO responseDTO;
             log.info("In ge all appointments method");
-
             /**
              * cast time if provided
              */
@@ -68,7 +67,11 @@ public class AppointmentServiceImpl implements AppointmentService {
              * load data from db
              */
             log.info("About to load appointments from db...");
-            List<AppointmentDTO> appointments = appointmentMapper.findAll(search,convertedStartTime,convertedEndTime);
+            if (page <=0){
+                page=1;
+            }
+            Integer offset = (page-1)*size;
+            List<AppointmentDTO> appointments = appointmentMapper.findAll(search,convertedStartTime,convertedEndTime,size,offset);
             if (appointments.isEmpty()){
                 log.error("No appointment record found");
                 responseDTO = AppUtils.getResponseDto("No appointment record found", HttpStatus.NOT_FOUND);
@@ -105,7 +108,7 @@ public class AppointmentServiceImpl implements AppointmentService {
              * loading record from db
              */
             log.info("About to load appointment record from db");
-            Optional<AppointmentDTO> appointmentOptional = appointmentMapper.fetchAppointmentsById(id);
+            Optional<AppointmentDTO> appointmentOptional = appointmentMapper.fetchAppointmentById(id);
             if (appointmentOptional.isEmpty()){
                 log.error("Appointment record does not exist:->>{}", id);
                 responseDTO = AppUtils.getResponseDto("Appointment record does not exist", HttpStatus.NOT_FOUND);
@@ -401,11 +404,10 @@ public class AppointmentServiceImpl implements AppointmentService {
      * @createdAt 14th October 2025
      */
     @Override
-    public ResponseEntity<ResponseDTO> fetchAppointmentsForDoctor(String doctorId,String search,String startTime,String endTime){
+    public ResponseEntity<ResponseDTO> fetchAppointmentsForDoctor(String doctorId,String search,String startTime,String endTime,Integer size, Integer page){
         try {
             ResponseDTO responseDTO;
             log.info("In fetch appointments for doctor method:->>{}", doctorId);
-
             /**
              * cast time if provided
              */
@@ -417,7 +419,6 @@ public class AppointmentServiceImpl implements AppointmentService {
             if (endTime !=null && !endTime.isEmpty()){
                 convertedEndTime = AppUtils.convertStringToLocalTime(endTime);
             }
-
             /**
              * check if record exist
              */
@@ -432,7 +433,11 @@ public class AppointmentServiceImpl implements AppointmentService {
              * load appointments for doctor
              */
             log.info("About to load appointments for doctor");
-            List<AppointmentDTO> appointments = appointmentMapper.fetchAppointmentsForDoctor(doctorId,search,convertedStartTime,convertedEndTime);
+            if (page <=0){
+                page=1;
+            }
+            Integer offset = (page-1)*size;
+            List<AppointmentDTO> appointments = appointmentMapper.fetchAppointmentsForDoctor(doctorId,search,convertedStartTime,convertedEndTime,size,offset);
             if (appointments.isEmpty()){
                 log.error("No appointment record found for logged-in doctor");
                 responseDTO = AppUtils.getResponseDto("No appointment record found for logged-in doctor", HttpStatus.NOT_FOUND);
@@ -443,6 +448,71 @@ public class AppointmentServiceImpl implements AppointmentService {
              */
             log.info("Appointments for logged-in doctor was loaded successfully");
             responseDTO = AppUtils.getResponseDto("Appointments fetched successfully", HttpStatus.OK, appointments);
+            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+
+        }catch (Exception e) {
+            log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
+            ResponseDTO  response = AppUtils.getResponseDto(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    /**
+     * @description This method is used to update appointment status(COMPLETED,CANCELLED)
+     * @param id The id of the appointment record to be updated
+     * @return ResponseEntity containing the retrieved data and status info
+     * @auther Emmanuel Yidana
+     * @createdAt 17th October 2025
+     */
+    @Override
+    public ResponseEntity<ResponseDTO> updateAppointmentStatus(String id, String status){
+        try {
+            ResponseDTO responseDTO;
+            log.info("In update appointment status:->>{}", status);
+            /**
+             * load appointment record from db
+             */
+            log.info("About to load appointment record from db...");
+            Optional<Appointment> appointmentOptional = appointmentMapper.findById(id);
+            if (appointmentOptional.isEmpty()){
+                log.error("Appointment record does not exist:->>{}", id);
+                responseDTO = AppUtils.getResponseDto("Appointment record does not exist", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
+            }
+            /**
+             * update status
+             */
+            Appointment existingData = appointmentOptional.get();
+            if (AppConstants.COMPLETED.equalsIgnoreCase(status)){
+                existingData.setStatus(AppConstants.COMPLETED);
+            } else if (AppConstants.CANCELLED.equalsIgnoreCase(status)) {
+                existingData.setStatus(AppConstants.CANCELLED);
+            }
+            /**
+             * insert updated record and check if it was inserted
+             */
+            Integer affectedRows = appointmentMapper.updateById(existingData);
+            if (affectedRows<0){
+                log.error("Appointment record failed to update");
+                responseDTO = AppUtils.getResponseDto("Appointment record failed to update", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+            /**
+             * retrieve updated record
+             */
+            log.info("About to retrieve updated record...");
+            Optional<Appointment> updatedOptional = appointmentMapper.findById(id);
+            if (updatedOptional.isEmpty()){
+                log.error("Updated record does not exist:->>{}", id);
+                responseDTO = AppUtils.getResponseDto("Updated record does not exist", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
+            }
+            /**
+             * return response on success
+             */
+            log.info("Appointment record was updated successfully:->>{}", updatedOptional.get());
+            responseDTO = AppUtils.getResponseDto("Appointment record updated successfully", HttpStatus.OK, updatedOptional.get());
             return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 
         }catch (Exception e) {

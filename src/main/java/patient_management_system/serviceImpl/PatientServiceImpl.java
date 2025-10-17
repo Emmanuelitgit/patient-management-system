@@ -35,7 +35,7 @@ public class PatientServiceImpl implements PatientService {
      * @createdAt 7th October 2025
      */
     @Override
-    public ResponseEntity<ResponseDTO> findAll() {
+    public ResponseEntity<ResponseDTO> findAll(String search, Integer size, Integer page) {
         try {
             ResponseDTO responseDTO;
             log.info("In find all patients method");
@@ -44,7 +44,8 @@ public class PatientServiceImpl implements PatientService {
              * loading patients from db
              */
             log.info("About to load patients from db");
-            List<Patient> patients = patientMapper.findAll();
+            Integer offset = (page-1)*size;
+            List<Patient> patients = patientMapper.findAll(search,size,offset);
             if (patients.isEmpty()){
                 log.error("No patient record found");
                 responseDTO = AppUtils.getResponseDto("No patient record found", HttpStatus.NOT_FOUND);
@@ -260,47 +261,6 @@ public class PatientServiceImpl implements PatientService {
              */
             log.info("Patient record was deleted successfully");
             responseDTO = AppUtils.getResponseDto("Patient record was deleted successfully", HttpStatus.OK);
-            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-
-        }catch (Exception e) {
-            log.error("Exception Occurred!, statusCode -> {} and Cause -> {} and Message -> {}", 500, e.getCause(), e.getMessage());
-            ResponseDTO  response = AppUtils.getResponseDto(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-
-    /**
-     * @description This method is used to fetch paginated list of patients with limit
-     * @param size The number of patients to be fetched for a given page
-     * @param page The target page for a records to be fetched on
-     * @return ResponseEntity containing the retrieved patients and status info
-     * @auther Emmanuel Yidana
-     * @createdAt 13th October 2025
-     */
-    @Override
-    public ResponseEntity<ResponseDTO> getPaginatedPatients(Integer size, Integer page){
-        try {
-            ResponseDTO responseDTO;
-            log.info("In fetch paginated patients method");
-
-            /**
-             * fetch from db if exist
-             */
-            log.info("About to load paginated patient from db");
-            int offset = (page-1)*size;
-            List<Patient> patients = patientMapper.getPaginatedPatients(size, offset);
-            if (patients.isEmpty()){
-                log.error("No patient record found");
-                responseDTO = AppUtils.getResponseDto("No patient record found", HttpStatus.NOT_FOUND);
-                return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
-            }
-
-            /**
-             * return response on success
-             */
-            log.info("Patients records was fetched successfully");
-            responseDTO = AppUtils.getResponseDto("Patients records was fetched successfully", HttpStatus.OK, patients);
             return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 
         }catch (Exception e) {
