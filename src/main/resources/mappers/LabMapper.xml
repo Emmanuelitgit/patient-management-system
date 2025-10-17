@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="patient_management_system.dao.LabMapper">
+
+    <resultMap id="LabResultMap" type="patient_management_system.models.Lab">
+        <id column="id" property="id"/>
+        <result column="patient_id" property="patientId"/>
+        <result column="doctor_id" property="doctorId"/>
+        <result column="test_name" property="testName"/>
+        <result column="result" property="result"/>
+        <result column="status" property="status"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="updated_by" property="updatedBy"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="created_by" property="createdBy"/>
+    </resultMap>
+
+    <resultMap id="LabDTOtMap" type="patient_management_system.dto.LabDTO">
+        <id column="id" property="id"/>
+        <result column="patient" property="patient"/>
+        <result column="doctor" property="doctor"/>
+        <result column="test_name" property="testName"/>
+        <result column="result" property="result"/>
+        <result column="status" property="status"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="updated_by" property="updatedBy"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="created_by" property="createdBy"/>
+    </resultMap>
+
+    <select id="findAll" resultMap="LabDTOMap">
+        SELECT u.name AS doctor,p.name AS patient,l.test_name,
+        l.result,l.status,l.created_at,l.created_by,l.updated_at,
+        l.updated_by FROM labs_tbl l
+        JOIN users_tbl u ON u.id=l.doctor_id
+        JOIN patients_tbl p ON p.id=l.patient_id
+        <where>
+            <if test="search !=null and search !='' ">
+                (
+                    LOWER(u.name) LIKE CONCAT('%',#{search},'%')
+                    OR LOWER(p.name) LIKE CONCAT('%',#{search},'%')
+                    OR LOWER(l.test_name) LIKE CONCAT('%',#{search},'%')
+                    OR CAST(l.created_at AS CHAR) LIKE #{search}
+                )
+            </if>
+        </where>
+        ORDER BY l.created_at DESC
+        <if test="limit !=null and offset !=null">
+            LIMIT #{search} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="fetchLabsForDoctor" resultMap="LabDTOMap">
+        SELECT u.name AS doctor,p.name AS patient,l.test_name,
+        l.result,l.status,l.created_at,l.created_by,l.updated_at,
+        l.updated_by FROM labs_tbl l
+        JOIN users_tbl u ON u.id=l.doctor_id
+        JOIN patients_tbl p ON p.id=l.patient_id
+        <where>
+            l.doctor_id=#{doctorId}
+            <if test="search !=null and search !='' ">
+                AND (
+                LOWER(u.name) LIKE CONCAT('%',#{search},'%')
+                OR LOWER(p.name) LIKE CONCAT('%',#{search},'%')
+                OR LOWER(l.test_name) LIKE CONCAT('%',#{search},'%')
+                OR CAST(l.created_at AS CHAR) LIKE #{search}
+                )
+            </if>
+        </where>
+        ORDER BY l.created_at DESC
+        <if test="limit !=null and offset !=null">
+            LIMIT #{search} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="findById" resultMap="LabResultMap" parameterType="string">
+        SELECT * FROM labs_tbl WHERE id = #{id}
+    </select>
+
+    <insert id="addLab">
+        INSERT INTO labs_tbl(id,doctor_id,patient_id,test_name,result,
+        status,created_at,created_by)
+        VALUES(#{id},#{doctorId},#{patientId},#{testName},#{result},
+        #{status},#{createdAt},#{createdBy})
+    </insert>
+
+    <update id="updateById">
+        UPDATE labs_tbl
+        SET test_name=#{testName}, result=#{result},status=#{status},
+            updated_at=#{updatedAt},updated_by=#{updatedBy}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="string">
+        DELETE FROM labs_tbl WHERE id = #{id}
+    </delete>
+
+</mapper>

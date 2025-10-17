@@ -45,10 +45,6 @@
         DELETE FROM patients_tbl WHERE id = #{id}
     </delete>
 
-    <select id="getPaginatedPatients" resultMap="PatientResultMap">
-        SELECT * FROM patients_tbl ORDER BY id LIMIT #{limit} OFFSET #{offset}
-    </select>
-
     <select id="countAllPatients" resultType="int">
         SELECT COUNT(*) FROM patients_tbl
     </select>

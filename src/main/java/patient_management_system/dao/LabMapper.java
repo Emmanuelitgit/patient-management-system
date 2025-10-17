@@ -1,18 +1,19 @@
 package patient_management_system.dao;
 
 import org.apache.ibatis.annotations.Mapper;
+import patient_management_system.models.Lab;
 import patient_management_system.models.Patient;
 
 import java.util.List;
 import java.util.Optional;
 
 @Mapper
-public interface PatientMapper {
+public interface LabMapper {
     List<Patient> findAll(String search, Integer limit, Integer offset);
-    Optional<Patient> findById(String id);
-    Optional<Patient> findByEmail(String email);
-    Integer addPatient(Patient patient);
-    Integer updateById(Patient patient);
+    Optional<Lab> findById(String id);
+    Optional<Lab> findByEmail(String email);
+    Integer addLab(Lab lab);
+    Integer updateById(Lab lab);
     Integer deleteById(String id);
-    Integer countAllPatients();
+    Integer countAllLabRecords();
 }
