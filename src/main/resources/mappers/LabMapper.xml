@@ -15,7 +15,7 @@
         <result column="created_by" property="createdBy"/>
     </resultMap>
 
-    <resultMap id="LabDTOtMap" type="patient_management_system.dto.LabDTO">
+    <resultMap id="LabDTOMap" type="patient_management_system.dto.LabDTO">
         <id column="id" property="id"/>
         <result column="patient" property="patient"/>
         <result column="doctor" property="doctor"/>
@@ -31,7 +31,7 @@
     <select id="findAll" resultMap="LabDTOMap">
         SELECT u.name AS doctor,p.name AS patient,l.test_name,
         l.result,l.status,l.created_at,l.created_by,l.updated_at,
-        l.updated_by FROM labs_tbl l
+        l.updated_by,l.id FROM labs_tbl l
         JOIN users_tbl u ON u.id=l.doctor_id
         JOIN patients_tbl p ON p.id=l.patient_id
         <where>
@@ -40,13 +40,14 @@
                     LOWER(u.name) LIKE CONCAT('%',#{search},'%')
                     OR LOWER(p.name) LIKE CONCAT('%',#{search},'%')
                     OR LOWER(l.test_name) LIKE CONCAT('%',#{search},'%')
-                    OR CAST(l.created_at AS CHAR) LIKE #{search}
+                    OR CAST(l.created_at AS CHAR) LIKE CONCAT('%',#{search},'%')
+                    OR LOWER(l.status) LIKE CONCAT('%',#{search},'%')
                 )
             </if>
         </where>
         ORDER BY l.created_at DESC
         <if test="limit !=null and offset !=null">
-            LIMIT #{search} OFFSET #{offset}
+            LIMIT #{limit} OFFSET #{offset}
         </if>
     </select>
 
@@ -64,6 +65,7 @@
                 OR LOWER(p.name) LIKE CONCAT('%',#{search},'%')
                 OR LOWER(l.test_name) LIKE CONCAT('%',#{search},'%')
                 OR CAST(l.created_at AS CHAR) LIKE #{search}
+                OR LOWER(l.status) LIKE CONCAT('%',#{search},'%')
                 )
             </if>
         </where>
@@ -71,6 +73,15 @@
         <if test="limit !=null and offset !=null">
             LIMIT #{search} OFFSET #{offset}
         </if>
+    </select>
+
+    <select id="fetchLabRecordById" resultMap="LabDTOMap">
+        SELECT u.name AS doctor,p.name AS patient,l.test_name,
+        l.result,l.status,l.created_at,l.created_by,l.updated_at,
+        l.updated_by,l.id FROM labs_tbl l
+        JOIN users_tbl u ON u.id=l.doctor_id
+        JOIN patients_tbl p ON p.id=l.patient_id
+        WHERE l.id=#{id}
     </select>
 
     <select id="findById" resultMap="LabResultMap" parameterType="string">

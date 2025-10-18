@@ -11,5 +11,5 @@ public interface PrescriptionService {
     ResponseEntity<ResponseDTO> updateById(Prescription prescription);
     ResponseEntity<ResponseDTO> deleteById(String id);
     ResponseEntity<ResponseDTO> fetchPrescriptionsForPractitioner(String practitionerId, String search, Integer size, Integer page);
-    ResponseEntity<ResponseDTO> updatePrescriptionStatus(String id);
+    ResponseEntity<ResponseDTO> updatePrescriptionStatus(String id,String status);
 }

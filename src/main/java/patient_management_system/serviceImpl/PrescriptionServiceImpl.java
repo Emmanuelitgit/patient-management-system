@@ -340,7 +340,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
      * @createdAt 16th October 2025
      */
     @Override
-    public ResponseEntity<ResponseDTO> updatePrescriptionStatus(String id) {
+    public ResponseEntity<ResponseDTO> updatePrescriptionStatus(String id,String status) {
         try {
             ResponseDTO responseDTO;
             log.info("In update prescription status method:->>{}", id);
@@ -355,10 +355,14 @@ public class PrescriptionServiceImpl implements PrescriptionService {
                 return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
             }
             /**
-             * change status to completed
+             * update status
              */
             Prescription existingData = prescriptionOptional.get();
-            existingData.setStatus(AppConstants.COMPLETED);
+            if (AppConstants.COMPLETED.equalsIgnoreCase(status)){
+                existingData.setStatus(AppConstants.COMPLETED);
+            } else {
+                existingData.setStatus(AppConstants.PENDING);
+            }
             existingData.setUpdatedBy(UUID.randomUUID().toString());
             existingData.setUpdatedAt(LocalDate.now());
             /**

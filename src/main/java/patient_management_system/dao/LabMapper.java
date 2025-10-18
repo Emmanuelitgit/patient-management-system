@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface LabMapper {
     List<Lab> findAll(String search, Integer limit, Integer offset);
     Optional<Lab> findById(String id);
-    Optional<Lab> findByEmail(String email);
+    Optional<Lab> fetchLabRecordById(String id);
     Integer addLab(Lab lab);
     Integer updateById(Lab lab);
     Integer deleteById(String id);

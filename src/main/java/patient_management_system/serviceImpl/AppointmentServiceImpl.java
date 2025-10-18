@@ -488,6 +488,8 @@ public class AppointmentServiceImpl implements AppointmentService {
                 existingData.setStatus(AppConstants.COMPLETED);
             } else if (AppConstants.CANCELLED.equalsIgnoreCase(status)) {
                 existingData.setStatus(AppConstants.CANCELLED);
+            }else {
+                existingData.setStatus(AppConstants.SCHEDULED);
             }
             /**
              * insert updated record and check if it was inserted

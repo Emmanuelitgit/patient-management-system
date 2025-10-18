@@ -65,7 +65,8 @@ public class PrescriptionRest {
 
     @Operation(summary = "This endpoint is used to update prescription status")
     @PutMapping("/status/{id}")
-    public ResponseEntity<ResponseDTO> updatePrescriptionStatus(@PathVariable String id){
-        return prescriptionService.updatePrescriptionStatus(id);
+    public ResponseEntity<ResponseDTO> updatePrescriptionStatus(@PathVariable String id,
+                                                                @RequestParam(name = "status") String status){
+        return prescriptionService.updatePrescriptionStatus(id,status);
     }
 }

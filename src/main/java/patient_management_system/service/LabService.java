@@ -10,5 +10,4 @@ public interface LabService {
     ResponseEntity<ResponseDTO> addLab(Lab lab);
     ResponseEntity<ResponseDTO> updateById(Lab lab);
     ResponseEntity<ResponseDTO> deleteById(String id);
-    ResponseEntity<ResponseDTO> fetchLabsForDoctor(String search, Integer size, Integer page,String doctorId);
 }

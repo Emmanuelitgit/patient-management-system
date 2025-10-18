@@ -27,6 +27,8 @@ public interface AppConstants {
 
     public final String PENDING = "PENDING";
 
+    public final String READY = "READY";
+
     public final String SCHEDULED = "SCHEDULED";
 
     public final String COMPLETED = "COMPLETED";
