@@ -32,4 +32,12 @@ public interface AppConstants {
     public final String SCHEDULED = "SCHEDULED";
 
     public final String COMPLETED = "COMPLETED";
+
+    public final String CONSULTATION = "CONSULTATION";
+
+    public final String LABS = "LABS";
+
+    public final String MEDICATION = "MEDICATION";
+
+    public final String PAID = "PAID";
 }

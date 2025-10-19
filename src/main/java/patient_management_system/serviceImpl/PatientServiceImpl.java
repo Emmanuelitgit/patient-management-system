@@ -66,7 +66,7 @@ public class PatientServiceImpl implements PatientService {
     }
 
     /**
-     * @description This method is used to retrieve patient id given the id
+     * @description This method is used to retrieve patient record given the id
      * @param id The id of the patient to be retrived
      * @return ResponseEntity containing the retrieved patient and status info
      * @auther Emmanuel Yidana
@@ -227,7 +227,7 @@ public class PatientServiceImpl implements PatientService {
     /**
      * @description This method is used to delete a patient record by id
      * @param id The id of the patient to be deleted
-     * @return ResponseEntity containing the updated patient record and status info
+     * @return ResponseEntity containing message and status info
      * @auther Emmanuel Yidana
      * @createdAt 8th October 2025
      */

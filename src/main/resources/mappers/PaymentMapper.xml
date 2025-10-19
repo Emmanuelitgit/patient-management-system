@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="patient_management_system.dao.PaymentMapper">
+
+    <resultMap id="PaymentResultMap" type="patient_management_system.models.Payment">
+        <id column="id" property="id"/>
+        <result column="patient_id" property="patientId"/>
+        <result column="entity_id" property="entityId"/>
+        <result column="service_type" property="serviceType"/>
+        <result column="paid_at" property="paidAt"/>
+        <result column="currency" property="currency"/>
+        <result column="amount" property="amount"/>
+        <result column="payment_method" property="paymentMethod"/>
+        <result column="reference_number" property="referenceNumber"/>
+        <result column="transaction_id" property="transactionId"/>
+        <result column="authorization_url" property="authorizationUrl"/>
+        <result column="status" property="status"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="updated_by" property="updatedBy"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="created_by" property="createdBy"/>
+    </resultMap>
+
+    <resultMap id="PaymentDTOMap" type="patient_management_system.models.Payment">
+        <id column="id" property="id"/>
+        <result column="patient" property="patient"/>
+        <result column="entity" property="entity"/>
+        <result column="service_type" property="serviceType"/>
+        <result column="paid_at" property="paidAt"/>
+        <result column="currency" property="currency"/>
+        <result column="amount" property="amount"/>
+        <result column="payment_method" property="paymentMethod"/>
+        <result column="reference_number" property="referenceNumber"/>
+        <result column="transaction_id" property="transactionId"/>
+        <result column="authorization_url" property="authorizationUrl"/>
+        <result column="status" property="status"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="updated_by" property="updatedBy"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="created_by" property="createdBy"/>
+    </resultMap>
+
+    <select id="findAll" resultMap="PaymentResultMap">
+        SELECT * FROM payments_tbl;
+    </select>
+
+    <select id="findByReference" resultMap="PaymentResultMap">
+        SELECT * FROM payments_tbl WHERE reference_number=#{referenceNumber}
+    </select>
+
+    <select id="findById" resultMap="PaymentResultMap" parameterType="string">
+        SELECT * FROM payments_tbl WHERE id = #{id}
+    </select>
+
+    <insert id="addPayment">
+        INSERT INTO payments_tbl(id,entity_id,patient_id,authorization_url,payment_method,
+        status,reference_number,amount,transaction_id,currecy,paid_at,service_type,
+        created_at,created_by)
+        VALUES(#{id},#{entityId},#{patientId},#{authorizationUrl},#{paymentMethod},
+        #{status},#{referenceNumber},#{amount},#{transactionId},#{currency},#{paidAt},
+        #{serviceType},#{createdAt},#{createdBy})
+    </insert>
+
+    <update id="updateById">
+        UPDATE payments_tbl
+        SET status=#{status}, currency=#{currency},payment_method=#{paymentMethod},
+            updated_at=#{updatedAt},updated_by=#{updatedBy}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="string">
+        DELETE FROM payments_tbl WHERE id = #{id}
+    </delete>
+
+</mapper>
