@@ -15,4 +15,5 @@ public interface PaymentMapper {
     Integer deleteById(String id);
     Integer countAllLabRecords();
     Optional<Payment> findByReference(String referenceNumber);
+    Optional<Payment> findByEntityId(String entityId);
 }

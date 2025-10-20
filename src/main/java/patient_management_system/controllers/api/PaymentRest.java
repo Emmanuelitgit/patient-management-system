@@ -22,7 +22,9 @@ public class PaymentRest {
     }
 
     @GetMapping
-    public ResponseEntity<ResponseDTO> findAll(String search, Integer size, Integer page) {
+    public ResponseEntity<ResponseDTO> findAll(@RequestParam(name = "search", required = false) String search,
+                                               @RequestParam(name = "size", required = false) Integer size,
+                                               @RequestParam(name = "page", required = false) Integer page) {
         return paymentService.findAll(search, size, page);
     }
 

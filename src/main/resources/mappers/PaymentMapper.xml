@@ -48,6 +48,10 @@
         SELECT * FROM payments_tbl WHERE reference_number=#{referenceNumber}
     </select>
 
+    <select id="findByEntityId" resultMap="PaymentResultMap">
+        SELECT * FROM payments_tbl WHERE entity_id=#{entityId}
+    </select>
+
     <select id="findById" resultMap="PaymentResultMap" parameterType="string">
         SELECT * FROM payments_tbl WHERE id = #{id}
     </select>

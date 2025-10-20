@@ -8,10 +8,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import patient_management_system.dao.LabMapper;
 import patient_management_system.dao.PatientMapper;
+import patient_management_system.dao.PaymentMapper;
 import patient_management_system.dao.UserMapper;
 import patient_management_system.dto.ResponseDTO;
 import patient_management_system.models.Lab;
 import patient_management_system.models.Patient;
+import patient_management_system.models.Payment;
 import patient_management_system.models.User;
 import patient_management_system.service.LabService;
 import patient_management_system.util.AppConstants;
@@ -28,12 +30,16 @@ public class LabServiceImpl implements LabService {
     private final LabMapper labMapper;
     private final PatientMapper patientMapper;
     private final UserMapper userMapper;
+    private final PaymentServiceImpl paymentServiceImpl;
+    private final PaymentMapper paymentMapper;
 
     @Autowired
-    public LabServiceImpl(LabMapper labMapper, PatientMapper patientMapper, UserMapper userMapper) {
+    public LabServiceImpl(LabMapper labMapper, PatientMapper patientMapper, UserMapper userMapper, PaymentServiceImpl paymentServiceImpl, PaymentMapper paymentMapper) {
         this.labMapper = labMapper;
         this.patientMapper = patientMapper;
         this.userMapper = userMapper;
+        this.paymentServiceImpl = paymentServiceImpl;
+        this.paymentMapper = paymentMapper;
     }
 
     /**
@@ -160,6 +166,22 @@ public class LabServiceImpl implements LabService {
                 return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
             }
             /**
+             * generate invoice for labs
+             */
+            Payment payment = Payment
+                    .builder()
+                    .amount(20d)
+                    .entityId(id)
+                    .patientId(lab.getPatientId())
+                    .serviceType(AppConstants.LABS)
+                    .build();
+            ResponseEntity<ResponseDTO> invoiceResponse = paymentServiceImpl.generateInvoice(payment);
+            if (!invoiceResponse.getStatusCode().is2xxSuccessful()){
+                log.error(invoiceResponse.getBody().getMessage());
+                responseDTO = AppUtils.getResponseDto(invoiceResponse.getBody().getMessage(), (HttpStatus) invoiceResponse.getStatusCode());
+                return new ResponseEntity<>(responseDTO, (HttpStatus) invoiceResponse.getStatusCode());
+            }
+            /**
              * retrieve saved record
              */
             log.info("About to retrieve saved record....");
@@ -227,6 +249,25 @@ public class LabServiceImpl implements LabService {
                 return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
             }
             /**
+             * update invoice if test name changes
+             */
+            if (lab.getTestName()!=null){
+                Optional<Payment> paymentOptional = paymentMapper.findByEntityId(lab.getId());
+                if (paymentOptional.isEmpty()){
+                    log.error("Payment record does not exist");
+                    responseDTO = AppUtils.getResponseDto("Payment record cannot be found", HttpStatus.NOT_FOUND);
+                    return new ResponseEntity<>(responseDTO,HttpStatus.NOT_FOUND);
+                }
+                Payment existingPaymentData = paymentOptional.get();
+                existingPaymentData.setAmount(20d);
+                ResponseEntity<ResponseDTO> invoiceResponse = paymentServiceImpl.generateInvoice(existingPaymentData);
+                if (!invoiceResponse.getStatusCode().is2xxSuccessful()){
+                    log.error(invoiceResponse.getBody().getMessage());
+                    responseDTO = AppUtils.getResponseDto(invoiceResponse.getBody().getMessage(), (HttpStatus) invoiceResponse.getStatusCode());
+                    return new ResponseEntity<>(responseDTO, (HttpStatus) invoiceResponse.getStatusCode());
+                }
+            }
+            /**
              * retrieve updated record
              */
             log.info("About to retrieve updated record....");
@@ -252,7 +293,7 @@ public class LabServiceImpl implements LabService {
 
 
     /**
-     * @description This method is used to remove an lab record
+     * @description This method is used to remove lab record
      * @param id The id of the lab record to be removed
      * @return ResponseEntity containing message and status info
      * @auther Emmanuel Yidana

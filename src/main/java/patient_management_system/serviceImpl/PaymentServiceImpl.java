@@ -31,7 +31,6 @@ import java.util.UUID;
 @Service
 public class PaymentServiceImpl implements PaymentService {
 
-    private final PaymentServiceImpl paymentService;
     private final RestTemplate restTemplate;
     private final PaymentMapper paymentMapper;
     private final PatientMapper patientMapper;
@@ -44,8 +43,7 @@ public class PaymentServiceImpl implements PaymentService {
     private String PAYSTACK_SECRET_KEY;
 
     @Autowired
-    public PaymentServiceImpl(PaymentServiceImpl paymentService, RestTemplate restTemplate, PaymentMapper paymentMapper, PatientMapper patientMapper, LabMapper labMapper, PrescriptionMapper prescriptionMapper) {
-        this.paymentService = paymentService;
+    public PaymentServiceImpl(RestTemplate restTemplate, PaymentMapper paymentMapper, PatientMapper patientMapper, LabMapper labMapper, PrescriptionMapper prescriptionMapper) {
         this.restTemplate = restTemplate;
         this.paymentMapper = paymentMapper;
         this.patientMapper = patientMapper;
@@ -88,10 +86,9 @@ public class PaymentServiceImpl implements PaymentService {
         }
     }
 
-
     /**
      * @description This method is used to retrieve payment record given the id
-     * @param id The id of the payment record to be retrived
+     * @param id The id of the payment record to be retrieved
      * @return ResponseEntity containing the retrieved payment and status info
      * @auther Emmanuel Yidana
      * @createdAt 19th October 2025

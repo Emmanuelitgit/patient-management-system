@@ -5,13 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import patient_management_system.dao.AppointmentMapper;
-import patient_management_system.dao.PatientMapper;
-import patient_management_system.dao.PrescriptionMapper;
-import patient_management_system.dao.UserMapper;
+import patient_management_system.dao.*;
 import patient_management_system.dto.PrescriptionDTO;
 import patient_management_system.dto.ResponseDTO;
 import patient_management_system.models.Appointment;
+import patient_management_system.models.Payment;
 import patient_management_system.models.Prescription;
 import patient_management_system.models.User;
 import patient_management_system.service.PrescriptionService;
@@ -30,13 +28,17 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     private final AppointmentMapper appointmentMapper;
     private final PatientMapper patientMapper;
     private final UserMapper userMapper;
+    private final PaymentServiceImpl paymentServiceImpl;
+    private final PaymentMapper paymentMapper;
 
     @Autowired
-    public PrescriptionServiceImpl(PrescriptionMapper prescriptionMapper, AppointmentMapper appointmentMapper, PatientMapper patientMapper, UserMapper userMapper) {
+    public PrescriptionServiceImpl(PrescriptionMapper prescriptionMapper, AppointmentMapper appointmentMapper, PatientMapper patientMapper, UserMapper userMapper, PaymentServiceImpl paymentServiceImpl, PaymentServiceImpl paymentServiceImpl1, PaymentMapper paymentMapper) {
         this.prescriptionMapper = prescriptionMapper;
         this.appointmentMapper = appointmentMapper;
         this.patientMapper = patientMapper;
         this.userMapper = userMapper;
+        this.paymentServiceImpl = paymentServiceImpl;
+        this.paymentMapper = paymentMapper;
     }
 
 
@@ -151,6 +153,22 @@ public class PrescriptionServiceImpl implements PrescriptionService {
                 return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
             }
             /**
+             * generate invoice for prescription
+             */
+            Payment payment = Payment
+                    .builder()
+                    .amount(20d)
+                    .entityId(id)
+                    .patientId(prescription.getPatientId())
+                    .serviceType(AppConstants.MEDICATION)
+                    .build();
+            ResponseEntity<ResponseDTO> invoiceResponse = paymentServiceImpl.generateInvoice(payment);
+            if (!invoiceResponse.getStatusCode().is2xxSuccessful()){
+                log.error(invoiceResponse.getBody().getMessage());
+                responseDTO = AppUtils.getResponseDto(invoiceResponse.getBody().getMessage(), (HttpStatus) invoiceResponse.getStatusCode());
+                return new ResponseEntity<>(responseDTO, (HttpStatus) invoiceResponse.getStatusCode());
+            }
+            /**
              * retrieve saved record
              */
             log.info("About to retrieve saved prescription");
@@ -214,6 +232,25 @@ public class PrescriptionServiceImpl implements PrescriptionService {
                 log.error("Prescription record deletion was not successfully");
                 responseDTO =AppUtils.getResponseDto("Prescription record deletion was not successfully", HttpStatus.BAD_REQUEST);
                 return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+            /**
+             * update invoice if medication changes
+             */
+            if (prescription.getMedication()!=null){
+                Optional<Payment> paymentOptional = paymentMapper.findByEntityId(prescription.getId());
+                if (paymentOptional.isEmpty()){
+                    log.error("Payment record does not exist");
+                    responseDTO = AppUtils.getResponseDto("Payment record cannot be found", HttpStatus.NOT_FOUND);
+                    return new ResponseEntity<>(responseDTO,HttpStatus.NOT_FOUND);
+                }
+                Payment existingPaymentData = paymentOptional.get();
+                existingPaymentData.setAmount(20d);
+                ResponseEntity<ResponseDTO> invoiceResponse = paymentServiceImpl.generateInvoice(existingPaymentData);
+                if (!invoiceResponse.getStatusCode().is2xxSuccessful()){
+                    log.error(invoiceResponse.getBody().getMessage());
+                    responseDTO = AppUtils.getResponseDto(invoiceResponse.getBody().getMessage(), (HttpStatus) invoiceResponse.getStatusCode());
+                    return new ResponseEntity<>(responseDTO, (HttpStatus) invoiceResponse.getStatusCode());
+                }
             }
             /**
              * retrieve updated record from db
