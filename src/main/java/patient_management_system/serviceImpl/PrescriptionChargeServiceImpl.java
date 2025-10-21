@@ -41,7 +41,11 @@ public class PrescriptionChargeServiceImpl implements PrescriptionChargeService 
              * load charges from db
              */
             log.info("About to load prescription charges...");
-            List<PrescriptionCharge> prescriptionCharges = prescriptionChargeMapper.findAll(search, size, page);
+            if (page<=0){
+                page = 1;
+            }
+            Integer offset = (page-1)*size;
+            List<PrescriptionCharge> prescriptionCharges = prescriptionChargeMapper.findAll(search, size, offset);
             if (prescriptionCharges.isEmpty()){
                 log.error("No prescription record found");
                 responseDTO = AppUtils.getResponseDto("No prescription record found", HttpStatus.NOT_FOUND);
@@ -124,7 +128,7 @@ public class PrescriptionChargeServiceImpl implements PrescriptionChargeService 
              */
             log.info("About to insert prescription charge record...");
             String id = UUID.randomUUID().toString();
-            prescriptionCharge.setEnabled(true);
+            prescriptionCharge.setEnabled(Boolean.TRUE);
             prescriptionCharge.setCreatedAt(LocalDate.now());
             prescriptionCharge.setCreatedBy(UUID.randomUUID().toString());
             prescriptionCharge.setId(id);
@@ -161,7 +165,7 @@ public class PrescriptionChargeServiceImpl implements PrescriptionChargeService 
     /**
      * @description This method is used to update a prescription charge record by id
      * @param prescriptionCharge The payload of the prescription charge record to be updated
-     * @return ResponseEntity containing the updated lab record and status info
+     * @return ResponseEntity containing the updated prescription charge record and status info
      * @auther Emmanuel Yidana
      * @createdAt 18th October 2025
      */
@@ -185,6 +189,8 @@ public class PrescriptionChargeServiceImpl implements PrescriptionChargeService 
              */
             PrescriptionCharge existingData = prescriptionChargeOptional.get();
             existingData.setName(prescriptionCharge.getName()!=null? prescriptionCharge.getName() : existingData.getName());
+            existingData.setPrice(prescriptionCharge.getPrice()!=null? prescriptionCharge.getPrice() : existingData.getPrice());
+            existingData.setEnabled(prescriptionCharge.getEnabled()!=null? prescriptionCharge.getEnabled() : existingData.getEnabled());
             existingData.setUpdatedAt(LocalDate.now());
             existingData.setUpdatedBy(UUID.randomUUID().toString());
             /**

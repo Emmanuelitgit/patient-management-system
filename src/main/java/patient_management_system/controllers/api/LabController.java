@@ -10,7 +10,7 @@ import patient_management_system.serviceImpl.LabServiceImpl;
 
 @Tag(name = "Lab Management")
 @RestController
-@RequestMapping("/labs")
+@RequestMapping("/api/labs")
 public class LabController {
 
     private final LabServiceImpl labService;

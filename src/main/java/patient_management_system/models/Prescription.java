@@ -17,11 +17,11 @@ public class Prescription {
     private String appointmentId;
     private String patientId;
     private String doctorId;
-    @NotBlank(message = "Medication cannot be null or empty")
     private String medication;
+    @NotBlank(message = "Medication id cannot be null or empty")
+    private String medicationId;
     @NotBlank(message = "Dosage cannot be null or empty")
     private String dosage;
-    @NotBlank(message = "Status cannot be null or empty")
     private String status;
     @NotBlank(message = "Instructions cannot be null or empty")
     private String instructions;

@@ -12,6 +12,6 @@ public class InvoiceResponse {
     public static class Data{
         private String authorization_url;
         private String access_code;
-        private String reference_number;
+        private String reference;
     }
 }

@@ -5,13 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import patient_management_system.dao.*;
 import patient_management_system.dto.PrescriptionDTO;
 import patient_management_system.dto.ResponseDTO;
-import patient_management_system.models.Appointment;
-import patient_management_system.models.Payment;
-import patient_management_system.models.Prescription;
-import patient_management_system.models.User;
+import patient_management_system.models.*;
 import patient_management_system.service.PrescriptionService;
 import patient_management_system.util.AppConstants;
 import patient_management_system.util.AppUtils;
@@ -27,18 +25,20 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     private final PrescriptionMapper prescriptionMapper;
     private final AppointmentMapper appointmentMapper;
     private final PatientMapper patientMapper;
+    private final PrescriptionChargeMapper prescriptionChargeMapper;
     private final UserMapper userMapper;
     private final PaymentServiceImpl paymentServiceImpl;
     private final PaymentMapper paymentMapper;
 
     @Autowired
-    public PrescriptionServiceImpl(PrescriptionMapper prescriptionMapper, AppointmentMapper appointmentMapper, PatientMapper patientMapper, UserMapper userMapper, PaymentServiceImpl paymentServiceImpl, PaymentServiceImpl paymentServiceImpl1, PaymentMapper paymentMapper) {
+    public PrescriptionServiceImpl(PrescriptionMapper prescriptionMapper, AppointmentMapper appointmentMapper, PatientMapper patientMapper, UserMapper userMapper, PaymentServiceImpl paymentServiceImpl, PaymentServiceImpl paymentServiceImpl1, PaymentMapper paymentMapper, PrescriptionChargeMapper prescriptionChargeMapper, PrescriptionChargeMapper prescriptionChargeMapper1) {
         this.prescriptionMapper = prescriptionMapper;
         this.appointmentMapper = appointmentMapper;
         this.patientMapper = patientMapper;
         this.userMapper = userMapper;
         this.paymentServiceImpl = paymentServiceImpl;
         this.paymentMapper = paymentMapper;
+        this.prescriptionChargeMapper = prescriptionChargeMapper1;
     }
 
 
@@ -121,6 +121,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
      * @auther Emmanuel Yidana
      * @createdAt 15th October 2025
      */
+    @Transactional
     @Override
     public ResponseEntity<ResponseDTO> addPrescription(Prescription prescription) {
         try {
@@ -136,6 +137,16 @@ public class PrescriptionServiceImpl implements PrescriptionService {
                 return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
             }
             /**
+             * get prescription charge for invoice generation
+             */
+            log.info("About to load prescription charges...");
+            Optional<PrescriptionCharge> prescriptionChargeOptional = prescriptionChargeMapper.findById(prescription.getMedicationId());
+            if (prescriptionChargeOptional.isEmpty()){
+                log.error("Prescription charge does not exist:->>{}", prescription.getMedication());
+                responseDTO = AppUtils.getResponseDto("Prescription charge does not exist", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
+            }
+            /**
              * insert record and check if it was inserted
              */
             log.info("About to insert prescription:->>{}", prescription);
@@ -145,6 +156,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
             prescription.setCreatedBy(UUID.randomUUID().toString());
             prescription.setDoctorId(appointmentOptional.get().getDoctorId());
             prescription.setPatientId(appointmentOptional.get().getPatientId());
+            prescription.setMedication(prescriptionChargeOptional.get().getName());
             prescription.setStatus(AppConstants.AWAITING_PAYMENT);
             Integer affectedRows = prescriptionMapper.addPrescription(prescription);
             if (affectedRows<0){
@@ -157,7 +169,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
              */
             Payment payment = Payment
                     .builder()
-                    .amount(20d)
+                    .amount(prescriptionChargeOptional.get().getPrice())
                     .entityId(id)
                     .patientId(prescription.getPatientId())
                     .serviceType(AppConstants.MEDICATION)
@@ -215,10 +227,20 @@ public class PrescriptionServiceImpl implements PrescriptionService {
                 return new ResponseEntity<>(responseDTO,HttpStatus.NOT_FOUND);
             }
             /**
+             * get prescription charge for invoice generation
+             */
+            log.info("About to load prescription charges...");
+            Optional<PrescriptionCharge> prescriptionChargeOptional = prescriptionChargeMapper.findById(prescription.getMedicationId());
+            if (prescriptionChargeOptional.isEmpty()){
+                log.error("Prescription charge does not exist:->>{}", prescription.getMedication());
+                responseDTO = AppUtils.getResponseDto("Prescription charge does not exist", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
+            }
+            /**
              * populated updated fields
              */
             Prescription existingData = prescriptionOptional.get();
-            existingData.setMedication(prescription.getMedication()!=null? prescription.getMedication() : existingData.getMedication());
+            existingData.setMedication(prescriptionChargeOptional.get().getName());
             existingData.setDosage(prescription.getDosage()!=null? prescription.getDosage() : existingData.getDosage());
             existingData.setInstructions(prescription.getInstructions()!=null? prescription.getInstructions() : existingData.getInstructions());
             existingData.setUpdatedAt(LocalDate.now());
@@ -244,8 +266,8 @@ public class PrescriptionServiceImpl implements PrescriptionService {
                     return new ResponseEntity<>(responseDTO,HttpStatus.NOT_FOUND);
                 }
                 Payment existingPaymentData = paymentOptional.get();
-                existingPaymentData.setAmount(20d);
-                ResponseEntity<ResponseDTO> invoiceResponse = paymentServiceImpl.generateInvoice(existingPaymentData);
+                existingPaymentData.setAmount(prescriptionChargeOptional.get().getPrice());
+                ResponseEntity<ResponseDTO> invoiceResponse = paymentServiceImpl.updateById(existingPaymentData);
                 if (!invoiceResponse.getStatusCode().is2xxSuccessful()){
                     log.error(invoiceResponse.getBody().getMessage());
                     responseDTO = AppUtils.getResponseDto(invoiceResponse.getBody().getMessage(), (HttpStatus) invoiceResponse.getStatusCode());

@@ -12,7 +12,7 @@ import patient_management_system.serviceImpl.PrescriptionServiceImpl;
 
 @Tag(name = "Prescription Management")
 @RestController
-@RequestMapping("/prescriptions")
+@RequestMapping("/api/prescriptions")
 public class PrescriptionRest {
     private final PrescriptionServiceImpl prescriptionService;
 

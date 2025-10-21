@@ -11,7 +11,7 @@ import patient_management_system.serviceImpl.PaymentServiceImpl;
 
 @Tag(name = "Payment Management")
 @RestController
-@RequestMapping("/payments")
+@RequestMapping("/api/payments")
 public class PaymentRest {
 
     private final PaymentServiceImpl paymentService;

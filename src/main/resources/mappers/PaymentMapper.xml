@@ -58,17 +58,19 @@
 
     <insert id="addPayment">
         INSERT INTO payments_tbl(id,entity_id,patient_id,authorization_url,payment_method,
-        status,reference_number,amount,transaction_id,currecy,paid_at,service_type,
+        status,reference_number,access_code,amount,transaction_id,currency,paid_at,service_type,
         created_at,created_by)
         VALUES(#{id},#{entityId},#{patientId},#{authorizationUrl},#{paymentMethod},
-        #{status},#{referenceNumber},#{amount},#{transactionId},#{currency},#{paidAt},
+        #{status},#{referenceNumber},#{accessCode},#{amount},#{transactionId},#{currency},#{paidAt},
         #{serviceType},#{createdAt},#{createdBy})
     </insert>
 
     <update id="updateById">
         UPDATE payments_tbl
-        SET status=#{status}, currency=#{currency},payment_method=#{paymentMethod},
-            updated_at=#{updatedAt},updated_by=#{updatedBy}
+        SET status=#{status},currency=#{currency},payment_method=#{paymentMethod},
+        authorization_url=#{authorizationUrl},reference_number=#{referenceNumber},
+        access_code=#{accessCode},updated_at=#{updatedAt},updated_by=#{updatedBy},
+        amount=#{amount}
         WHERE id = #{id}
     </update>
 

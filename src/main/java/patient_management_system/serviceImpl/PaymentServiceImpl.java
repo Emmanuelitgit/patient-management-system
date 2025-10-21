@@ -14,6 +14,7 @@ import patient_management_system.dto.InvoiceDTO;
 import patient_management_system.dto.InvoiceResponse;
 import patient_management_system.dto.ResponseDTO;
 import patient_management_system.dto.WebHookPayload;
+import patient_management_system.exception.ServerException;
 import patient_management_system.models.Lab;
 import patient_management_system.models.Patient;
 import patient_management_system.models.Payment;
@@ -24,6 +25,7 @@ import patient_management_system.util.AppUtils;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -144,6 +146,7 @@ public class PaymentServiceImpl implements PaymentService {
                 responseDTO = AppUtils.getResponseDto("Payment record does not exist", HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(responseDTO,HttpStatus.NOT_FOUND);
             }
+            Payment existingData = paymentOptional.get();
             /**
              * load patient records
              */
@@ -166,13 +169,47 @@ public class PaymentServiceImpl implements PaymentService {
                 return new ResponseEntity<>(responseDTO,HttpStatus.NOT_FOUND);
             }
             /**
+             * if price amount changes regenerate invoice
+             */
+            if (!Objects.equals(payment.getAmount(), paymentOptional.get().getAmount())){
+                log.info("About to re-generate invoice with new amount:->>{}", payment.getAmount());
+                /**
+                 * request headers
+                 */
+                HttpHeaders headers = new HttpHeaders();
+                headers.setBearerAuth(PAYSTACK_SECRET_KEY);
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                /**
+                 * prepare invoice payload
+                 */
+                InvoiceDTO invoiceDTO = InvoiceDTO
+                        .builder()
+                        .email(patientOptional.get().getEmail())
+                        .amount(payment.getAmount())
+                        .build();
+                HttpEntity entity = new HttpEntity(invoiceDTO,headers);
+                /**
+                 * make request
+                 */
+                ResponseEntity<InvoiceResponse> responseEntity = restTemplate.postForEntity(PAYMENT_INITIALIZATION_ENDPOINT,entity, InvoiceResponse.class);
+                if (!responseEntity .getStatusCode().is2xxSuccessful()){
+                    responseDTO = AppUtils.getResponseDto(responseEntity.getBody().getMessage(), HttpStatus.BAD_REQUEST);
+                    return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+                }
+                log.info("Paystack response:->>{}", responseEntity.getBody().getData());
+                /**
+                 * set response
+                 */
+                existingData.setAuthorizationUrl(responseEntity.getBody().getData().getAuthorization_url());
+                existingData.setReferenceNumber(responseEntity.getBody().getData().getReference());
+                existingData.setAccessCode(responseEntity.getBody().getData().getAccess_code());
+                existingData.setAmount(payment.getAmount());
+            }
+            /**
              * populate updated values(only status is updatable for now)
              */
-            Payment existingData = paymentOptional.get();
             existingData.setUpdatedAt(LocalDate.now());
             existingData.setUpdatedBy(UUID.randomUUID().toString());
-            existingData.setCurrency(payment.getCurrency()!=null?payment.getCurrency(): existingData.getCurrency());
-            existingData.setPaymentMethod(payment.getPaymentMethod()!=null? payment.getPaymentMethod() : existingData.getPaymentMethod());
             if (payment.getStatus()!=null){
                 if (AppConstants.PAID.equalsIgnoreCase(payment.getStatus())){
                     existingData.setStatus(AppConstants.PAID);
@@ -308,7 +345,6 @@ public class PaymentServiceImpl implements PaymentService {
                     .amount(payment.getAmount())
                     .build();
             HttpEntity entity = new HttpEntity(invoiceDTO,headers);
-
             /**
              * make request
              */
@@ -317,17 +353,7 @@ public class PaymentServiceImpl implements PaymentService {
                 responseDTO = AppUtils.getResponseDto(responseEntity.getBody().getMessage(), HttpStatus.BAD_REQUEST);
                 return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
             }
-            /**
-             * build invoice payload to be saved
-             */
-            Payment invoiceResponse = Payment
-                    .builder()
-                    .status(AppConstants.PENDING)
-                    .authorizationUrl(responseEntity .getBody().getData().getAuthorization_url())
-                    .referenceNumber(responseEntity .getBody().getData().getReference_number())
-                    .accessCode(responseEntity.getBody().getData().getAccess_code())
-                    .build();
-
+            log.info("Paystck response:->>{}", responseEntity.getBody().getData());
             /**
              * save generated invoice and check if it was inserted
              */
@@ -335,7 +361,13 @@ public class PaymentServiceImpl implements PaymentService {
             payment.setId(id);
             payment.setCreatedBy(UUID.randomUUID().toString());
             payment.setCreatedAt(LocalDate.now());
-            Integer affectedRows = paymentMapper.addPayment(invoiceResponse);
+            payment.setAuthorizationUrl(responseEntity.getBody().getData().getAuthorization_url());
+            payment.setReferenceNumber(responseEntity.getBody().getData().getReference());
+            payment.setAccessCode(responseEntity.getBody().getData().getAccess_code());
+            payment.setStatus(AppConstants.PENDING);
+            payment.setCreatedAt(LocalDate.now());
+            payment.setCreatedBy(UUID.randomUUID().toString());
+            Integer affectedRows = paymentMapper.addPayment(payment);
             if (affectedRows<0){
                 log.error("Invoice record failed to insert");
                 responseDTO = AppUtils.getResponseDto("Invoice record failed to insert", HttpStatus.BAD_REQUEST);
@@ -388,7 +420,29 @@ public class PaymentServiceImpl implements PaymentService {
                      log.error("Payment records fails to update:->>{}", existingData);
                  }
                 /**
-                 * send  acknowledgment back to paysatck
+                 * update the respective entity
+                 */
+                Optional<Prescription> prescriptionOptional = prescriptionMapper.findById(existingData.getEntityId());
+                Optional<Lab> labOptional = labMapper.findById(existingData.getEntityId());
+                if (prescriptionOptional.isPresent()){
+                    Prescription prescription = prescriptionOptional.get();
+                    prescription.setStatus(AppConstants.PAID);
+                    Integer affectedPrescriptionRows = paymentMapper.updateById(existingData);
+                    if (affectedPrescriptionRows<=0){
+                        log.error("Prescription records failed to update:->>{}", existingData);
+                        throw new ServerException("Lab records failed to update");
+                    }
+                } else if (labOptional.isPresent()) {
+                    Lab lab = labOptional.get();
+                    lab.setStatus(AppConstants.PAID);
+                    Integer affectedLabRows = paymentMapper.updateById(existingData);
+                    if (affectedLabRows<=0){
+                        log.error("Lab records failed to update:->>{}", existingData);
+                        throw new ServerException("Lab records failed to update");
+                    }
+                }
+                /**
+                 * send  acknowledgment back to payStack
                  */
                 return new ResponseEntity<>(HttpStatus.OK);
             }

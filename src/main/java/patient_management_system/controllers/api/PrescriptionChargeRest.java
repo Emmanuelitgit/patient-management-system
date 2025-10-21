@@ -24,8 +24,8 @@ public class PrescriptionChargeRest {
     @Operation(summary = "This endpoint is used to fetch all prescription charges")
     @GetMapping
     public ResponseEntity<ResponseDTO> findAll(@RequestParam(name = "search", required = false) String search,
-                                               @RequestParam(name = "size", required = false) Integer size,
-                                               @RequestParam(name = "page",required = false) Integer page) {
+                                               @RequestParam(name = "size",defaultValue = "10", required = false) Integer size,
+                                               @RequestParam(name = "page",defaultValue = "1",required = false) Integer page) {
         return prescriptionChargeService.findAll(search, size, page);
     }
 

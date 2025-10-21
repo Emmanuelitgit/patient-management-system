@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="patient_management_system.dao.PrescriptionChargeMapper">
+<mapper namespace="patient_management_system.dao.LabChargeMapper">
 
-    <resultMap id="PrescriptionChargeResultMap" type="patient_management_system.models.PrescriptionCharge">
+    <resultMap id="LabChargeResultMap" type="patient_management_system.models.LabCharge">
         <id column="id" property="id"/>
         <result column="name" property="name"/>
         <result column="price" property="price"/>
@@ -13,8 +13,8 @@
         <result column="created_by" property="createdBy"/>
     </resultMap>
 
-    <select id="findAll" resultMap="PrescriptionChargeResultMap">
-        SELECT * FROM prescription_charges_tbl
+    <select id="findAll" resultMap="LabChargeResultMap">
+        SELECT * FROM lab_charges_tbl
         <where>
             <choose>
                 <when test="search !=null and search !=''">
@@ -24,9 +24,9 @@
                     OR CAST(created_at AS CHAR) LIKE CONCAT('%',LOWER(#{search}),'%')
                     )
                 </when>
-                 <otherwise>
-                     id IS NOT NULL
-                 </otherwise>
+                <otherwise>
+                    id IS NOT NULL
+                </otherwise>
             </choose>
         </where>
         ORDER BY created_at DESC
@@ -35,28 +35,28 @@
         </if>
     </select>
 
-    <select id="findById" resultMap="PrescriptionChargeResultMap" parameterType="string">
-        SELECT * FROM prescription_charges_tbl WHERE id = #{id}
+    <select id="findById" resultMap="LabChargeResultMap" parameterType="string">
+        SELECT * FROM lab_charges_tbl WHERE id = #{id}
     </select>
 
-    <select id="findByName" resultMap="PrescriptionChargeResultMap" parameterType="string">
-        SELECT * FROM prescription_charges_tbl WHERE LOWER(name) = LOWER(#{name})
+    <select id="findByName" resultMap="LabChargeResultMap" parameterType="string">
+        SELECT * FROM lab_charges_tbl WHERE LOWER(name) = LOWER(#{name})
     </select>
 
-    <insert id="addPrescriptionCharge">
-        INSERT INTO prescription_charges_tbl(id,name,price,enabled,created_at,created_by)
+    <insert id="addLabCharge">
+        INSERT INTO lab_charges_tbl(id,name,price,enabled,created_at,created_by)
         VALUES(#{id},#{name},#{price},#{enabled},#{createdAt},#{createdBy})
     </insert>
 
     <update id="updateById">
-        UPDATE prescription_charges_tbl
+        UPDATE lab_charges_tbl
         SET enabled=#{enabled}, name=#{name},price=#{price},updated_at=#{updatedAt},
-        updated_by=#{updatedBy}
+            updated_by=#{updatedBy}
         WHERE id = #{id}
     </update>
 
     <delete id="deleteById" parameterType="string">
-        DELETE FROM prescription_charges_tbl WHERE id = #{id}
+        DELETE FROM lab_charges_tbl WHERE id = #{id}
     </delete>
 
 </mapper>

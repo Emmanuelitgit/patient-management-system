@@ -12,15 +12,15 @@ import java.time.LocalDate;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PrescriptionCharge {
+public class LabCharge {
     private String id;
-    @NotBlank(message = "Prescription charge name cannot be null or empty")
+    @NotBlank(message = "Lab charge name cannot be null or empty")
     private String name;
     @NotBlank(message = "Price cannot be null or empty")
     private Double price;
     private Boolean enabled;
-    private String createdBy;
     private LocalDate createdAt;
-    private String updatedBy;
     private LocalDate updatedAt;
+    private String createdBy;
+    private String updatedBy;
 }
