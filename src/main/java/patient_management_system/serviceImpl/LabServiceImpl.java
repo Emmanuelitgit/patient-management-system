@@ -1,20 +1,14 @@
 package patient_management_system.serviceImpl;
 
-import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import patient_management_system.dao.LabMapper;
-import patient_management_system.dao.PatientMapper;
-import patient_management_system.dao.PaymentMapper;
-import patient_management_system.dao.UserMapper;
+import org.springframework.transaction.annotation.Transactional;
+import patient_management_system.dao.*;
 import patient_management_system.dto.ResponseDTO;
-import patient_management_system.models.Lab;
-import patient_management_system.models.Patient;
-import patient_management_system.models.Payment;
-import patient_management_system.models.User;
+import patient_management_system.models.*;
 import patient_management_system.service.LabService;
 import patient_management_system.util.AppConstants;
 import patient_management_system.util.AppUtils;
@@ -22,6 +16,7 @@ import patient_management_system.util.AppUtils;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Scanner;
 import java.util.UUID;
 
 @Slf4j
@@ -32,14 +27,16 @@ public class LabServiceImpl implements LabService {
     private final UserMapper userMapper;
     private final PaymentServiceImpl paymentServiceImpl;
     private final PaymentMapper paymentMapper;
+    private final LabChargeMapper labChargeMapper;
 
     @Autowired
-    public LabServiceImpl(LabMapper labMapper, PatientMapper patientMapper, UserMapper userMapper, PaymentServiceImpl paymentServiceImpl, PaymentMapper paymentMapper) {
+    public LabServiceImpl(LabMapper labMapper, PatientMapper patientMapper, UserMapper userMapper, PaymentServiceImpl paymentServiceImpl, PaymentMapper paymentMapper, LabChargeMapper labChargeMapper) {
         this.labMapper = labMapper;
         this.patientMapper = patientMapper;
         this.userMapper = userMapper;
         this.paymentServiceImpl = paymentServiceImpl;
         this.paymentMapper = paymentMapper;
+        this.labChargeMapper = labChargeMapper;
     }
 
     /**
@@ -125,6 +122,7 @@ public class LabServiceImpl implements LabService {
      * @auther Emmanuel Yidana
      * @createdAt 18th October 2025
      */
+    @Transactional
     @Override
     public ResponseEntity<ResponseDTO> addLab(Lab lab) {
         try{
@@ -151,11 +149,22 @@ public class LabServiceImpl implements LabService {
                 return new ResponseEntity<>(responseDTO,HttpStatus.NOT_FOUND);
             }
             /**
+             * get lab charge record
+             */
+            log.info("About to load lab charge from db...");
+            Optional<LabCharge> labChargeOptional = labChargeMapper.findById(lab.getLabChargeId());
+            if (labChargeOptional.isEmpty()){
+                log.error("Lab charge record does not exist:->>{}", lab.getLabChargeId());
+                responseDTO = AppUtils.getResponseDto("Lab charge record does not exist", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(responseDTO,HttpStatus.NOT_FOUND);
+            }
+            /**
              * insert record and check if it was inserted
              */
             log.info("About to insert lab record");
             String id = UUID.randomUUID().toString();
             lab.setId(id);
+            lab.setTestName(labChargeOptional.get().getName());
             lab.setCreatedBy(UUID.randomUUID().toString());
             lab.setCreatedAt(LocalDate.now());
             lab.setStatus(AppConstants.AWAITING_PAYMENT);
@@ -170,7 +179,7 @@ public class LabServiceImpl implements LabService {
              */
             Payment payment = Payment
                     .builder()
-                    .amount(20d)
+                    .amount(labChargeOptional.get().getPrice())
                     .entityId(id)
                     .patientId(lab.getPatientId())
                     .serviceType(AppConstants.LABS)
@@ -212,6 +221,7 @@ public class LabServiceImpl implements LabService {
      * @auther Emmanuel Yidana
      * @createdAt 18th October 2025
      */
+    @Transactional
     @Override
     public ResponseEntity<ResponseDTO> updateById(Lab lab) {
         try {
@@ -228,14 +238,33 @@ public class LabServiceImpl implements LabService {
                 return new ResponseEntity<>(responseDTO,HttpStatus.NOT_FOUND);
             }
             /**
-             * populated updated record
+             * retrieve lab charge record
+             */
+            log.info("About to load lab charge from db...");
+            Optional<LabCharge> labChargeOptional = labChargeMapper.findById(lab.getLabChargeId());
+            if (labChargeOptional.isEmpty()){
+                log.error("Lab charge record does not exist");
+                responseDTO = AppUtils.getResponseDto("Lab charge record does not exist", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(responseDTO,HttpStatus.NOT_FOUND);
+            }
+            /**
+             * retrieve payment record
+             */
+            Optional<Payment> paymentOptional = paymentMapper.findByEntityId(lab.getId());
+            if (paymentOptional.isEmpty()){
+                log.error("Payment record does not exist");
+                responseDTO = AppUtils.getResponseDto("Payment record cannot be found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(responseDTO,HttpStatus.NOT_FOUND);
+            }
+            /**
+             * populate updated record
              */
             Lab existingData = labOptional.get();
             existingData.setUpdatedAt(LocalDate.now());
             existingData.setUpdatedBy(UUID.randomUUID().toString());
             existingData.setTestName(lab.getTestName()!=null? lab.getTestName() : existingData.getTestName());
             existingData.setResult(lab.getResult()!=null? lab.getResult() : existingData.getResult());
-            if (lab.getResult()!=null && !lab.getResult().isEmpty()){
+            if (lab.getResult()!=null && lab.getStatus()!=null && paymentOptional.get().getStatus().equalsIgnoreCase(AppConstants.PAID)){
                 existingData.setStatus(AppConstants.READY);
             }
             /**
@@ -252,15 +281,9 @@ public class LabServiceImpl implements LabService {
              * update invoice if test name changes
              */
             if (lab.getTestName()!=null){
-                Optional<Payment> paymentOptional = paymentMapper.findByEntityId(lab.getId());
-                if (paymentOptional.isEmpty()){
-                    log.error("Payment record does not exist");
-                    responseDTO = AppUtils.getResponseDto("Payment record cannot be found", HttpStatus.NOT_FOUND);
-                    return new ResponseEntity<>(responseDTO,HttpStatus.NOT_FOUND);
-                }
                 Payment existingPaymentData = paymentOptional.get();
-                existingPaymentData.setAmount(20d);
-                ResponseEntity<ResponseDTO> invoiceResponse = paymentServiceImpl.generateInvoice(existingPaymentData);
+                existingPaymentData.setAmount(labChargeOptional.get().getPrice());
+                ResponseEntity<ResponseDTO> invoiceResponse = paymentServiceImpl.updateById(existingPaymentData);
                 if (!invoiceResponse.getStatusCode().is2xxSuccessful()){
                     log.error(invoiceResponse.getBody().getMessage());
                     responseDTO = AppUtils.getResponseDto(invoiceResponse.getBody().getMessage(), (HttpStatus) invoiceResponse.getStatusCode());

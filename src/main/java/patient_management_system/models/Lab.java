@@ -22,6 +22,7 @@ public class Lab {
     private String testName;
     @NotBlank(message = "Result cannot be null or empty")
     private String result;
+    private String labChargeId;
     private String status;
     private String createdBy;
     private String updatedBy;

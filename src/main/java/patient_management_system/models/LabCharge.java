@@ -18,7 +18,7 @@ public class LabCharge {
     private String name;
     @NotBlank(message = "Price cannot be null or empty")
     private Double price;
-    private Boolean enabled;
+    private Double enabled;
     private LocalDate createdAt;
     private LocalDate updatedAt;
     private String createdBy;

@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import patient_management_system.dao.LabMapper;
 import patient_management_system.dao.PatientMapper;
@@ -131,6 +132,7 @@ public class PaymentServiceImpl implements PaymentService {
      * @auther Emmanuel Yidana
      * @createdAt 19th October 2025
      */
+    @Transactional
     @Override
     public ResponseEntity<ResponseDTO> updateById(Payment payment) {
         try {
@@ -185,7 +187,7 @@ public class PaymentServiceImpl implements PaymentService {
                 InvoiceDTO invoiceDTO = InvoiceDTO
                         .builder()
                         .email(patientOptional.get().getEmail())
-                        .amount(payment.getAmount())
+                        .amount(payment.getAmount()*100)
                         .build();
                 HttpEntity entity = new HttpEntity(invoiceDTO,headers);
                 /**
@@ -196,7 +198,7 @@ public class PaymentServiceImpl implements PaymentService {
                     responseDTO = AppUtils.getResponseDto(responseEntity.getBody().getMessage(), HttpStatus.BAD_REQUEST);
                     return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
                 }
-                log.info("Paystack response:->>{}", responseEntity.getBody().getData());
+                log.info("PayStack response:->>{}", responseEntity.getBody().getData());
                 /**
                  * set response
                  */
@@ -220,6 +222,7 @@ public class PaymentServiceImpl implements PaymentService {
             /**
              * update and check if it was updated/inserted
              */
+            log.info("Existing payment data:->>{}", existingData);
             Integer affectedRows = paymentMapper.updateById(existingData);
             if (affectedRows<0){
                 log.error("Payment record failed to update");
@@ -342,18 +345,19 @@ public class PaymentServiceImpl implements PaymentService {
             InvoiceDTO invoiceDTO = InvoiceDTO
                     .builder()
                     .email(patientOptional.get().getEmail())
-                    .amount(payment.getAmount())
+                    .amount(payment.getAmount()*100)
                     .build();
             HttpEntity entity = new HttpEntity(invoiceDTO,headers);
             /**
              * make request
              */
+            log.info("About to make request to PayStack to generate invoice..");
             ResponseEntity<InvoiceResponse> responseEntity = restTemplate.postForEntity(PAYMENT_INITIALIZATION_ENDPOINT,entity, InvoiceResponse.class);
             if (!responseEntity .getStatusCode().is2xxSuccessful()){
                 responseDTO = AppUtils.getResponseDto(responseEntity.getBody().getMessage(), HttpStatus.BAD_REQUEST);
                 return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
             }
-            log.info("Paystck response:->>{}", responseEntity.getBody().getData());
+            log.info("PayStack response:->>{}", responseEntity.getBody().getData());
             /**
              * save generated invoice and check if it was inserted
              */
@@ -394,6 +398,7 @@ public class PaymentServiceImpl implements PaymentService {
      * @author Emmanuel Yidana
      * @createdAt 7th, June 2025
      * */
+    @Transactional
     @Override
     public ResponseEntity<Object> getWebhookData(WebHookPayload webHookPayload) {
         if (webHookPayload != null){

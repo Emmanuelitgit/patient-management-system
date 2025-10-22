@@ -14,6 +14,7 @@
         <result column="reference_number" property="referenceNumber"/>
         <result column="transaction_id" property="transactionId"/>
         <result column="authorization_url" property="authorizationUrl"/>
+        <result column="access_code" property="accessCode"/>
         <result column="status" property="status"/>
         <result column="updated_at" property="updatedAt"/>
         <result column="updated_by" property="updatedBy"/>
@@ -33,6 +34,7 @@
         <result column="reference_number" property="referenceNumber"/>
         <result column="transaction_id" property="transactionId"/>
         <result column="authorization_url" property="authorizationUrl"/>
+        <result column="access_code" property="accessCode"/>
         <result column="status" property="status"/>
         <result column="updated_at" property="updatedAt"/>
         <result column="updated_by" property="updatedBy"/>
