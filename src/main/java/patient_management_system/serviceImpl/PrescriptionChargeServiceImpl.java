@@ -47,8 +47,8 @@ public class PrescriptionChargeServiceImpl implements PrescriptionChargeService 
             Integer offset = (page-1)*size;
             List<PrescriptionCharge> prescriptionCharges = prescriptionChargeMapper.findAll(search, size, offset);
             if (prescriptionCharges.isEmpty()){
-                log.error("No prescription record found");
-                responseDTO = AppUtils.getResponseDto("No prescription record found", HttpStatus.NOT_FOUND);
+                log.error("No prescription charge record found");
+                responseDTO = AppUtils.getResponseDto("No prescription charge record found", HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(responseDTO,HttpStatus.NOT_FOUND);
             }
             /**

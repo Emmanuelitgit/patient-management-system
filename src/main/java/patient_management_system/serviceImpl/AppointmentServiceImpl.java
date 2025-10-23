@@ -5,14 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import patient_management_system.dao.AppointmentMapper;
-import patient_management_system.dao.PatientMapper;
-import patient_management_system.dao.UserMapper;
+import org.springframework.transaction.annotation.Transactional;
+import patient_management_system.dao.*;
 import patient_management_system.dto.AppointmentDTO;
 import patient_management_system.dto.ResponseDTO;
-import patient_management_system.models.Appointment;
-import patient_management_system.models.Patient;
-import patient_management_system.models.User;
+import patient_management_system.models.*;
 import patient_management_system.service.AppointmentService;
 import patient_management_system.util.AppConstants;
 import patient_management_system.util.AppUtils;
@@ -21,6 +18,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,12 +29,18 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final AppointmentMapper appointmentMapper;
     private final UserMapper userMapper;
     private final PatientMapper patientMapper;
+    private final AppointmentChargeMapper appointmentChargeMapper;
+    private final PaymentServiceImpl paymentServiceImpl;
+    private final PaymentMapper paymentMapper;
 
     @Autowired
-    public AppointmentServiceImpl(AppointmentMapper appointmentMapper, UserMapper userMapper, PatientMapper patientMapper) {
+    public AppointmentServiceImpl(AppointmentMapper appointmentMapper, UserMapper userMapper, PatientMapper patientMapper, AppointmentChargeMapper appointmentChargeMapper, PaymentServiceImpl paymentServiceImpl, PaymentMapper paymentMapper) {
         this.appointmentMapper = appointmentMapper;
         this.userMapper = userMapper;
         this.patientMapper = patientMapper;
+        this.appointmentChargeMapper = appointmentChargeMapper;
+        this.paymentServiceImpl = paymentServiceImpl;
+        this.paymentMapper = paymentMapper;
     }
 
 
@@ -136,6 +140,7 @@ public class AppointmentServiceImpl implements AppointmentService {
      * @auther Emmanuel Yidana
      * @createdAt 10th October 2025
      */
+    @Transactional
     @Override
     public ResponseEntity<ResponseDTO> addAppointment(Appointment appointment){
         try {
@@ -164,9 +169,19 @@ public class AppointmentServiceImpl implements AppointmentService {
             }
             User doctor = userOptional.get();
             /**
+             * load appointment charge record by id
+             */
+            log.info("About to load appointment charge record...");
+            Optional<AppointmentCharge> appointmentChargeOptional = appointmentChargeMapper.findById(appointment.getAppointmentChargeId());
+            if (appointmentChargeOptional.isEmpty()){
+                log.error("Appointment charge record does not exist:->>{}", appointment.getAppointmentChargeId());
+                responseDTO = AppUtils.getResponseDto("Appointment charge record does not exist", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(responseDTO,HttpStatus.NOT_FOUND);
+            }
+            /**
              * check for doctor capacity
              */
-            log.info("About to check doctor capacity");
+            log.info("About to check doctor capacity...");
             Integer doctorAppointments = appointmentMapper
                     .countAppointmentsByDate(appointment.getDate(), doctor.getId());
             if (doctorAppointments>=doctor.getCapacity()){
@@ -177,7 +192,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             /**
              * check overlapping
              */
-            log.info("About to check overlapping");
+            log.info("About to check overlapping...");
             appointment.setEndTime(appointment.getStartTime().plusHours(1));
             Integer count = appointmentMapper
                     .checkOverLapping(appointment.getDate(),
@@ -191,7 +206,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
             }
             /**
-             * validate date
+             * validate date(weekends not allowed)
              */
             log.info("About to validate date:->>{}", appointment.getDate());
             if (appointment.getDate().getDayOfWeek()== DayOfWeek.SATURDAY ||
@@ -201,9 +216,18 @@ public class AppointmentServiceImpl implements AppointmentService {
                 return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
             }
             /**
-             * validate time
+             * validate date(today and upward is allowed)
              */
-            log.info("About to validate time");
+            log.info("About to check if date is before current date(today)...");
+            if (appointment.getDate().isBefore(LocalDate.now())){
+                log.error("Appointment date cannot be before the current date(today):->>{}", appointment.getDate());
+                responseDTO = AppUtils.getResponseDto("Appointment date cannot be before the current date(today)", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(responseDTO,HttpStatus.BAD_REQUEST);
+            }
+            /**
+             * validate time(6am-6pm allowed)
+             */
+            log.info("About to validate time...");
             LocalTime morningBoundary = LocalTime.of(6, 0);
             LocalTime eveningBoundary = LocalTime.of(18, 0);
             if (appointment.getStartTime().isBefore(morningBoundary) || appointment.getStartTime().isAfter(eveningBoundary)){
@@ -217,7 +241,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             String id = UUID.randomUUID().toString();
             appointment.setCreatedAt(LocalDate.now());
             appointment.setCreatedBy(id);
-            appointment.setStatus(AppConstants.SCHEDULED);
+            appointment.setStatus(AppConstants.PENDING);
             appointment.setId(id);
             log.info("About to insert record:->>{}", appointment);
             Integer affectedRows = appointmentMapper.addAppointment(appointment);
@@ -225,6 +249,22 @@ public class AppointmentServiceImpl implements AppointmentService {
                 log.error("Appointment record failed to insert");
                 responseDTO = AppUtils.getResponseDto("Appointment record failed to insert", HttpStatus.BAD_REQUEST);
                 return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+            /**
+             * generate invoice for appointment
+             */
+            Payment payment = Payment
+                    .builder()
+                    .amount(appointmentChargeOptional.get().getPrice())
+                    .entityId(id)
+                    .patientId(appointment.getPatientId())
+                    .serviceType(AppConstants.APPOINTMENT)
+                    .build();
+            ResponseEntity<ResponseDTO> invoiceResponse = paymentServiceImpl.generateInvoice(payment);
+            if (!invoiceResponse.getStatusCode().is2xxSuccessful()){
+                log.error(invoiceResponse.getBody().getMessage());
+                responseDTO = AppUtils.getResponseDto(invoiceResponse.getBody().getMessage(), (HttpStatus) invoiceResponse.getStatusCode());
+                return new ResponseEntity<>(responseDTO, (HttpStatus) invoiceResponse.getStatusCode());
             }
             /**
              * retrieve saved record and return to client
@@ -257,12 +297,12 @@ public class AppointmentServiceImpl implements AppointmentService {
      * @auther Emmanuel Yidana
      * @createdAt 14th October 2025
      */
+    @Transactional
     @Override
     public ResponseEntity<ResponseDTO> updateById(Appointment appointment){
         try {
             ResponseDTO responseDTO;
             log.info("In update appointment by id method");
-
             /**
              * check if appointment record exist
              */
@@ -284,7 +324,16 @@ public class AppointmentServiceImpl implements AppointmentService {
                 return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
             }
             User doctor = userOptional.get();
-
+            /**
+             * load appointment charge record by id
+             */
+            log.info("About to load appointment charge record...");
+            Optional<AppointmentCharge> appointmentChargeOptional = appointmentChargeMapper.findById(appointment.getAppointmentChargeId());
+            if (appointmentChargeOptional.isEmpty()){
+                log.error("Appointment charge record does not exist:->>{}", appointment.getAppointmentChargeId());
+                responseDTO = AppUtils.getResponseDto("Appointment charge record does not exist", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(responseDTO,HttpStatus.NOT_FOUND);
+            }
             /**
              * check overlapping
              */
@@ -301,7 +350,36 @@ public class AppointmentServiceImpl implements AppointmentService {
                 responseDTO = AppUtils.getResponseDto("Selected date and time already exist", HttpStatus.BAD_REQUEST);
                 return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
             }
-
+            /**
+             * validate date(weekends not allowed)
+             */
+            log.info("About to validate date:->>{}", appointment.getDate());
+            if (appointment.getDate().getDayOfWeek()== DayOfWeek.SATURDAY ||
+                    appointment.getDate().getDayOfWeek()==DayOfWeek.SUNDAY){
+                log.info("Consultation not allowed during weekends:->>{}", appointment.getDate());
+                responseDTO = AppUtils.getResponseDto("Consultation not allowed during weekends", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+            /**
+             * validate date(today and upward is allowed)
+             */
+            log.info("About to check if date is before current date(today)...");
+            if (appointment.getDate().isBefore(LocalDate.now())){
+                log.error("Appointment date cannot be before the current date(today):->>{}", appointment.getDate());
+                responseDTO = AppUtils.getResponseDto("Appointment date cannot be before the current date(today)", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(responseDTO,HttpStatus.BAD_REQUEST);
+            }
+            /**
+             * validate time(6am-6pm allowed)
+             */
+            log.info("About to validate time");
+            LocalTime morningBoundary = LocalTime.of(6, 0);
+            LocalTime eveningBoundary = LocalTime.of(18, 0);
+            if (appointment.getStartTime().isBefore(morningBoundary) || appointment.getStartTime().isAfter(eveningBoundary)){
+                log.error("Consultation not allow within the selected time:->>{}", appointment.getStartTime());
+                responseDTO = AppUtils.getResponseDto("Consultation not allow within the selected time", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+            }
             /**
              * populate updated fields
              */
@@ -316,16 +394,34 @@ public class AppointmentServiceImpl implements AppointmentService {
             existingData.setRemarks(appointment.getRemarks()!=null?appointment.getRemarks(): existingData.getRemarks());
             existingData.setUpdatedBy(UUID.randomUUID().toString());
             existingData.setUpdatedAt(LocalDate.now());
-
             /**
              * update record and check if it was updated
              */
-            log.info("About to retrieve updated record from db");
+            log.info("About to retrieve updated record from db...");
             Integer affectedRows = appointmentMapper.updateById(existingData);
             if (affectedRows<0){
                 log.error("Appointment record failed to update");
                 responseDTO = AppUtils.getResponseDto("Appointment record failed to update", HttpStatus.BAD_REQUEST);
                 return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+            /**
+             * update invoice if appointment type changes
+             */
+            if (!Objects.equals(appointment.getAppointmentChargeId(), appointmentOptional.get().getAppointmentChargeId())){
+                Optional<Payment> paymentOptional = paymentMapper.findByEntityId(appointment.getId());
+                if (paymentOptional.isEmpty()){
+                    log.error("Payment record does not exist");
+                    responseDTO = AppUtils.getResponseDto("Payment record cannot be found", HttpStatus.NOT_FOUND);
+                    return new ResponseEntity<>(responseDTO,HttpStatus.NOT_FOUND);
+                }
+                Payment existingPaymentData = paymentOptional.get();
+                existingPaymentData.setAmount(appointmentChargeOptional.get().getPrice());
+                ResponseEntity<ResponseDTO> invoiceResponse = paymentServiceImpl.updateById(existingPaymentData);
+                if (!invoiceResponse.getStatusCode().is2xxSuccessful()){
+                    log.error(invoiceResponse.getBody().getMessage());
+                    responseDTO = AppUtils.getResponseDto(invoiceResponse.getBody().getMessage(), (HttpStatus) invoiceResponse.getStatusCode());
+                    return new ResponseEntity<>(responseDTO, (HttpStatus) invoiceResponse.getStatusCode());
+                }
             }
             /**
              * retrieve saved record and return to client

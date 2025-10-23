@@ -13,6 +13,7 @@
         <result column="end_time" property="endTime"/>
         <result column="status" property="status"/>
         <result column="remarks" property="remarks"/>
+        <result column="appointment_charge_id" property="appointmentChargeId"/>
         <result column="created_at" property="createdAt"/>
         <result column="created_by" property="createdBy"/>
         <result column="updated_at" property="updatedAt"/>
@@ -23,6 +24,7 @@
         <id column="id" property="id"/>
         <result column="doctor_id" property="doctorId"/>
         <result column="patient_id" property="patientId"/>
+        <result column="appointment_charge_id" property="appointmentChargeId"/>
         <result column="date" property="date"/>
         <result column="start_time" property="startTime"/>
         <result column="end_time" property="endTime"/>
@@ -39,7 +41,7 @@
         a.remarks, a.status, a.date, a.start_time, a.end_time,
         p.name AS patient, u.name AS doctor,
         a.created_at, a.created_by, a.updated_at, a.updated_by,
-        a.patient_id, a.doctor_id, a.id
+        a.patient_id, a.doctor_id, a.id,a.appointment_charge_id
         FROM appointments_tbl a
         JOIN users_tbl u ON u.id = a.doctor_id
         JOIN patients_tbl p ON p.id = a.patient_id
@@ -86,8 +88,8 @@
     <select id="fetchAppointmentById" resultMap="AppointmentDTOMap" parameterType="string">
         SELECT a.remarks,a.status,a.date,a.start_time,a.end_time,
         p.name AS patient,u.name AS doctor,a.created_at,a.created_by,
-        a.updated_at,a.updated_by,a.patient_id,a.doctor_id,a.id
-        FROM appointments_tbl a
+        a.updated_at,a.updated_by,a.patient_id,a.doctor_id,a.id,
+        a.appointment_charge_id FROM appointments_tbl a
         JOIN users_tbl u ON u.id=a.doctor_id
         JOIN patients_tbl p ON p.id=a.patient_id
         WHERE a.id=#{id}
@@ -143,8 +145,8 @@
     <select id="fetchAppointmentsForDoctor" resultMap="AppointmentDTOMap">
         SELECT a.remarks,a.status,a.date,a.start_time,a.end_time,
         p.name AS patient,u.name AS doctor,a.created_at,a.created_by,
-        a.updated_at,a.updated_by,a.patient_id,a.doctor_id,a.id
-        FROM appointments_tbl a
+        a.updated_at,a.updated_by,a.patient_id,a.doctor_id,a.id,
+        a.appointment_charge_id FROM appointments_tbl a
         JOIN users_tbl u ON u.id=a.doctor_id
         JOIN patients_tbl p ON p.id=a.patient_id
         <where>

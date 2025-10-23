@@ -39,5 +39,7 @@ public interface AppConstants {
 
     public final String MEDICATION = "MEDICATION";
 
+    public final String APPOINTMENT = "APPOINTMENT";
+
     public final String PAID = "PAID";
 }

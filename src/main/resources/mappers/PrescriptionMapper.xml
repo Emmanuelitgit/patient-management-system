@@ -7,6 +7,7 @@
         <result column="appointment_id" property="appointmentId"/>
         <result column="patient_id" property="patientId"/>
         <result column="doctor_id" property="doctorId"/>
+        <result column="medication_id" property="medicationId"/>
         <result column="medication" property="medication"/>
         <result column="instructions" property="instructions"/>
         <result column="dosage" property="dosage"/>
@@ -22,6 +23,7 @@
         <result column="appointment_id" property="appointmentId"/>
         <result column="patient" property="patient"/>
         <result column="doctor" property="doctor"/>
+        <result column="medication_id" property="medicationId"/>
         <result column="medication" property="medication"/>
         <result column="instructions" property="instructions"/>
         <result column="dosage" property="dosage"/>
@@ -34,7 +36,7 @@
 
     <select id="findAll" resultMap="PrescriptionDTOMap">
         SELECT p.id,p.medication,p.dosage,p.instructions,p.status,
-        p.created_at,p.created_by,p.updated_at,p.updated_by,
+        p.created_at,p.created_by,p.updated_at,p.updated_by,p.medication_id,
         u.name AS doctor,pa.name AS patient,p.appointment_id
         FROM prescriptions_tbl p
         JOIN patients_tbl pa ON pa.id=p.patient_id
@@ -60,7 +62,7 @@
     
     <select id="fetchPrescriptionsForPractitioner" resultMap="PrescriptionDTOMap">
         SELECT p.id,p.medication,p.dosage,p.instructions,p.status,
-        p.created_at,p.created_by,p.updated_at,p.updated_by,
+        p.created_at,p.created_by,p.updated_at,p.updated_by,p.medication_id,
         u.name AS doctor,pa.name AS patient,p.appointment_id
         FROM prescriptions_tbl p
         JOIN patients_tbl pa ON pa.id=p.patient_id

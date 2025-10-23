@@ -23,6 +23,8 @@ public class Appointment {
     private String doctorId;
     @NotNull(message = "Appointment date cannot be null")
     private LocalDate date;
+    @NotBlank(message = "Appointment charge cannot be null or empty")
+    private String appointmentChargeId;
     @NotNull(message = "Appointment time cannot be null")
     private LocalTime startTime;
     private LocalTime endTime;

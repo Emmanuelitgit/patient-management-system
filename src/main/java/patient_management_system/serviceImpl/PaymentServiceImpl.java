@@ -7,19 +7,13 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
-import patient_management_system.dao.LabMapper;
-import patient_management_system.dao.PatientMapper;
-import patient_management_system.dao.PaymentMapper;
-import patient_management_system.dao.PrescriptionMapper;
+import patient_management_system.dao.*;
 import patient_management_system.dto.InvoiceDTO;
 import patient_management_system.dto.InvoiceResponse;
 import patient_management_system.dto.ResponseDTO;
 import patient_management_system.dto.WebHookPayload;
 import patient_management_system.exception.ServerException;
-import patient_management_system.models.Lab;
-import patient_management_system.models.Patient;
-import patient_management_system.models.Payment;
-import patient_management_system.models.Prescription;
+import patient_management_system.models.*;
 import patient_management_system.service.PaymentService;
 import patient_management_system.util.AppConstants;
 import patient_management_system.util.AppUtils;
@@ -39,6 +33,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final PatientMapper patientMapper;
     private final LabMapper labMapper;
     private final PrescriptionMapper prescriptionMapper;
+    private final AppointmentMapper appointmentMapper;
 
     @Value("${PAYMENT_INITIALIZATION_ENDPOINT}")
     private String PAYMENT_INITIALIZATION_ENDPOINT;
@@ -46,12 +41,13 @@ public class PaymentServiceImpl implements PaymentService {
     private String PAYSTACK_SECRET_KEY;
 
     @Autowired
-    public PaymentServiceImpl(RestTemplate restTemplate, PaymentMapper paymentMapper, PatientMapper patientMapper, LabMapper labMapper, PrescriptionMapper prescriptionMapper) {
+    public PaymentServiceImpl(RestTemplate restTemplate, PaymentMapper paymentMapper, PatientMapper patientMapper, LabMapper labMapper, PrescriptionMapper prescriptionMapper, AppointmentMapper appointmentMapper) {
         this.restTemplate = restTemplate;
         this.paymentMapper = paymentMapper;
         this.patientMapper = patientMapper;
         this.labMapper = labMapper;
         this.prescriptionMapper = prescriptionMapper;
+        this.appointmentMapper = appointmentMapper;
     }
 
     /**
@@ -165,7 +161,8 @@ public class PaymentServiceImpl implements PaymentService {
             log.info("About to load entity records from db...");
             Optional<Lab> labOptional = labMapper.findById(payment.getEntityId());
             Optional<Prescription> prescriptionOptional = prescriptionMapper.findById(payment.getEntityId());
-            if (prescriptionOptional.isEmpty() && labOptional.isEmpty()){
+            Optional<Appointment> appointmentOptional = appointmentMapper.findById(payment.getEntityId());
+            if (prescriptionOptional.isEmpty() && labOptional.isEmpty() && appointmentOptional.isEmpty()){
                 log.error("Entity record does not exist:->>{}", payment.getEntityId());
                 responseDTO = AppUtils.getResponseDto("Entity record does not exist", HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(responseDTO,HttpStatus.NOT_FOUND);
@@ -328,7 +325,8 @@ public class PaymentServiceImpl implements PaymentService {
             log.info("About to load entity records from db...");
             Optional<Lab> labOptional = labMapper.findById(payment.getEntityId());
             Optional<Prescription> prescriptionOptional = prescriptionMapper.findById(payment.getEntityId());
-            if (prescriptionOptional.isEmpty() && labOptional.isEmpty()){
+            Optional<Appointment> appointmentOptional = appointmentMapper.findById(payment.getEntityId());
+            if (prescriptionOptional.isEmpty() && labOptional.isEmpty() && appointmentOptional.isEmpty()){
                 log.error("Entity record does not exist:->>{}", payment.getEntityId());
                 responseDTO = AppUtils.getResponseDto("Entity record does not exist", HttpStatus.NOT_FOUND);
                 return new ResponseEntity<>(responseDTO,HttpStatus.NOT_FOUND);

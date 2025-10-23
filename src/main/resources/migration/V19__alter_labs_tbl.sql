@@ -1,0 +1,2 @@
+ALTER TABLE labs_tbl
+ADD COLUMN lab_charge_id VARCHAR(36) NOT NULL;

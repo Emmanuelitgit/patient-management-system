@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="patient_management_system.dao.AppointmentChargeMapper">
+
+    <resultMap id="AppointmentChargeResultMap" type="patient_management_system.models.AppointmentCharge">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="price" property="price"/>
+        <result column="enabled" property="enabled"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="updated_by" property="updatedBy"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="created_by" property="createdBy"/>
+    </resultMap>
+
+    <select id="findAll" resultMap="AppointmentChargeResultMap">
+        SELECT * FROM appointment_charges_tbl
+        <where>
+            <choose>
+                <when test="search !=null and search !=''">
+                    (
+                    LOWER(name) LIKE CONCAT('%',LOWER(#{search}),'%')
+                    OR LOWER(enabled) LIKE CONCAT('%',LOWER(#{search}),'%')
+                    OR CAST(created_at AS CHAR) LIKE CONCAT('%',LOWER(#{search}),'%')
+                    )
+                </when>
+                <otherwise>
+                    id IS NOT NULL
+                </otherwise>
+            </choose>
+        </where>
+        ORDER BY created_at DESC
+        <if test="offset !=null and limit !=null">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="findById" resultMap="AppointmentChargeResultMap" parameterType="string">
+        SELECT * FROM appointment_charges_tbl WHERE id = #{id}
+    </select>
+
+    <select id="findByName" resultMap="AppointmentChargeResultMap" parameterType="string">
+        SELECT * FROM appointment_charges_tbl WHERE LOWER(name) = LOWER(#{name})
+    </select>
+
+    <insert id="addAppointmentCharge">
+        INSERT INTO appointment_charges_tbl(id,name,price,enabled,created_at,created_by)
+        VALUES(#{id},#{name},#{price},#{enabled},#{createdAt},#{createdBy})
+    </insert>
+
+    <update id="updateById">
+        UPDATE appointment_charges_tbl
+        SET enabled=#{enabled}, name=#{name},price=#{price},updated_at=#{updatedAt},
+            updated_by=#{updatedBy}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="string">
+        DELETE FROM appointment_charges_tbl WHERE id = #{id}
+    </delete>
+
+</mapper>
