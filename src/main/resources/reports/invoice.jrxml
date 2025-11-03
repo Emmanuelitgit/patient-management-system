@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports
+              http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="invoice"
+              pageWidth="595"
+              pageHeight="842"
+              columnWidth="555"
+              leftMargin="20"
+              rightMargin="20"
+              topMargin="20"
+              bottomMargin="20"
+              uuid="a1b2c3d4-e5f6-7890-abcd-1234567890ab">
+
+    <!-- ======================== STYLES ========================== -->
+    <style name="BaseStyle" fontName="SansSerif" fontSize="11"/>
+    <style name="HeaderStyle" style="BaseStyle" isBold="true" fontSize="14"/>
+
+    <!-- ======================== PARAMETERS ======================= -->
+    <parameter name="invoiceId" class="java.lang.String"/>
+    <parameter name="patientName" class="java.lang.String"/>
+    <parameter name="invoiceDate" class="java.lang.String"/>
+    <parameter name="itemName" class="java.lang.String"/>
+    <parameter name="amount" class="java.lang.Double"/>
+    <parameter name="description" class="java.lang.String"/>
+    <parameter name="title" class="java.lang.String"/>
+    <parameter name="doctorName" class="java.lang.String"/>
+
+    <!-- ======================== TITLE BAND ======================= -->
+    <title>
+        <band height="80">
+            <textField>
+                <reportElement x="0" y="10" width="555" height="30" style="HeaderStyle"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$P{title}]]></textFieldExpression>
+            </textField>
+            <line>
+                <reportElement x="0" y="45" width="555" height="1"/>
+            </line>
+        </band>
+    </title>
+
+    <!-- ======================== DETAIL BAND ====================== -->
+    <detail>
+        <band height="250">
+            <frame>
+                <reportElement x="0" y="0" width="555" height="250" style="BaseStyle" backcolor="#FFFFFF" mode="Opaque"/>
+
+                <!-- Row 1: Invoice ID -->
+                <staticText>
+                    <reportElement x="0" y="10" width="200" height="20"/>
+                    <textElement><font isBold="true"/></textElement>
+                    <text><![CDATA[Invoice ID:]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="220" y="10" width="300" height="20"/>
+                    <textFieldExpression><![CDATA[$P{invoiceId}]]></textFieldExpression>
+                </textField>
+
+                <!-- Row 2: Patient Name -->
+                <staticText>
+                    <reportElement x="0" y="35" width="200" height="20"/>
+                    <textElement><font isBold="true"/></textElement>
+                    <text><![CDATA[Patient Name:]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="220" y="35" width="300" height="20"/>
+                    <textFieldExpression><![CDATA[$P{patientName}]]></textFieldExpression>
+                </textField>
+
+                <!-- Row 3: Doctor Name (moved below Patient Name) -->
+                <staticText>
+                    <reportElement x="0" y="60" width="200" height="20"/>
+                    <textElement><font isBold="true"/></textElement>
+                    <text><![CDATA[Doctor Name:]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="220" y="60" width="300" height="20"/>
+                    <textFieldExpression><![CDATA[$P{doctorName}]]></textFieldExpression>
+                </textField>
+
+                <!-- Row 4: Invoice Date -->
+                <staticText>
+                    <reportElement x="0" y="85" width="200" height="20"/>
+                    <textElement><font isBold="true"/></textElement>
+                    <text><![CDATA[Invoice Date:]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="220" y="85" width="300" height="20"/>
+                    <textFieldExpression><![CDATA[$P{invoiceDate}]]></textFieldExpression>
+                </textField>
+
+                <!-- Row 5: Item Name -->
+                <staticText>
+                    <reportElement x="0" y="110" width="200" height="20"/>
+                    <textElement><font isBold="true"/></textElement>
+                    <text><![CDATA[Item Name:]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="220" y="110" width="300" height="20"/>
+                    <textFieldExpression><![CDATA[$P{itemName}]]></textFieldExpression>
+                </textField>
+
+                <!-- Row 6: Amount -->
+                <staticText>
+                    <reportElement x="0" y="135" width="200" height="20"/>
+                    <textElement><font isBold="true"/></textElement>
+                    <text><![CDATA[Amount:]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="220" y="135" width="300" height="20"/>
+                    <textFieldExpression><![CDATA[$P{amount}]]></textFieldExpression>
+                </textField>
+
+                <!-- Row 7: Description -->
+                <staticText>
+                    <reportElement x="0" y="160" width="200" height="20"/>
+                    <textElement><font isBold="true"/></textElement>
+                    <text><![CDATA[Description:]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="220" y="160" width="300" height="20"/>
+                    <textFieldExpression><![CDATA[$P{description}]]></textFieldExpression>
+                </textField>
+
+                <!-- Divider line -->
+                <line>
+                    <reportElement x="0" y="215" width="555" height="1"/>
+                </line>
+
+                <!-- Footer Note -->
+                <staticText>
+                    <reportElement x="0" y="225" width="555" height="20"/>
+                    <textElement textAlignment="Center"/>
+                    <text><![CDATA[Thank you for choosing our clinic!]]></text>
+                </staticText>
+
+            </frame>
+        </band>
+    </detail>
+
+</jasperReport>

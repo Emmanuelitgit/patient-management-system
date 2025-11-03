@@ -42,4 +42,9 @@ public interface AppConstants {
     public final String APPOINTMENT = "APPOINTMENT";
 
     public final String PAID = "PAID";
+
+    public final String GENERATE = "GENERATE";
+
+    public final String VIEW="VIEW";
+
 }

@@ -16,4 +16,5 @@ public interface PaymentMapper {
     Integer countAllLabRecords();
     Optional<Payment> findByReference(String referenceNumber);
     Optional<Payment> findByEntityId(String entityId);
+    Optional<Payment> getInvoiceDetails(String paymentId);
 }

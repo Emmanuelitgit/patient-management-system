@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports
+              http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="LabReport" pageWidth="595" pageHeight="842" columnWidth="555"
+              leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20"
+              uuid="a0f47e3b-14e7-4c5d-88b2-d9f648ec43a2">
+
+    <!-- ================== FIELDS ================== -->
+    <field name="patientName" class="java.lang.String"/>
+    <field name="doctorName" class="java.lang.String"/>
+    <field name="testName" class="java.lang.String"/>
+    <field name="result" class="java.lang.String"/>
+    <field name="date" class="java.lang.String"/>
+
+    <!-- ================== TITLE ================== -->
+    <title>
+        <band height="100">
+            <staticText>
+                <reportElement x="0" y="0" width="555" height="40" uuid="f42f4238-1a31-4cde-b8a7-c3a62d9b8b25"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="20" isBold="true"/>
+                </textElement>
+                <text><![CDATA[LAB TEST REPORT]]></text>
+            </staticText>
+
+            <line>
+                <reportElement x="0" y="45" width="555" height="1" uuid="6c8a412d-31b0-4964-8d71-df320d8b709a"/>
+            </line>
+
+            <staticText>
+                <reportElement x="0" y="55" width="555" height="30" uuid="c3f49c6a-993a-47b2-90d2-4927cb1ecf93"/>
+                <textElement textAlignment="Center">
+                    <font size="12" isItalic="true"/>
+                </textElement>
+                <text><![CDATA[Confidential Patient Laboratory Results]]></text>
+            </staticText>
+        </band>
+    </title>
+
+    <!-- ================== PAGE HEADER ================== -->
+    <pageHeader>
+        <band height="80">
+            <frame>
+                <reportElement x="0" y="0" width="555" height="70" uuid="1d3e1bc3-3ef3-4a89-9d53-43c42e230dc4"/>
+
+                <staticText>
+                    <reportElement x="0" y="0" width="100" height="20" uuid="8fbb144a-25c4-41bb-bbc0-35585a95d011"/>
+                    <textElement><font isBold="true"/></textElement>
+                    <text><![CDATA[Patient Name:]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="110" y="0" width="200" height="20" uuid="23a4326f-d27c-4808-88a8-d34c194c0fc1"/>
+                    <textFieldExpression><![CDATA[$F{patientName}]]></textFieldExpression>
+                </textField>
+
+                <staticText>
+                    <reportElement x="320" y="0" width="100" height="20" uuid="7ffb2471-f71b-48a3-b46d-7400a4cbb9ea"/>
+                    <textElement><font isBold="true"/></textElement>
+                    <text><![CDATA[Doctor Name:]]></text>
+                </staticText>
+                <textField>
+                    <reportElement x="420" y="0" width="130" height="20" uuid="a8f25451-10b7-4a94-9f1c-6f5fd2c9e59b"/>
+                    <textFieldExpression><![CDATA[$F{doctorName}]]></textFieldExpression>
+                </textField>
+
+                <staticText>
+                    <reportElement x="0" y="25" width="100" height="20" uuid="3bc4c29c-ef2c-41a3-bb27-1e346bb2eb47"/>
+                    <textElement><font isBold="true"/></textElement>
+                    <text><![CDATA[Date:]]></text>
+                </staticText>
+                <textField pattern="dd MMM yyyy">
+                    <reportElement x="110" y="25" width="200" height="20" uuid="91bfc82f-9305-4ee2-8973-f38e9de3522d"/>
+                    <textFieldExpression><![CDATA[$F{date}]]></textFieldExpression>
+                </textField>
+            </frame>
+        </band>
+    </pageHeader>
+
+    <!-- ================== COLUMN HEADER ================== -->
+    <columnHeader>
+        <band height="25">
+            <frame>
+                <reportElement x="0" y="0" width="555" height="25" backcolor="#E0E0E0" mode="Opaque" uuid="c9c43a6e-f47a-48d0-8fa0-601a9b1c6235"/>
+                <staticText>
+                    <reportElement x="0" y="0" width="250" height="25" uuid="ed9fa2e5-fb47-4f40-939d-c5861ac329f5"/>
+                    <textElement textAlignment="Center" verticalAlignment="Middle">
+                        <font isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[Test Name]]></text>
+                </staticText>
+                <staticText>
+                    <reportElement x="250" y="0" width="305" height="25" uuid="d77d0a4f-37fc-4b5a-b42d-24720b4a7ff2"/>
+                    <textElement textAlignment="Center" verticalAlignment="Middle">
+                        <font isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[Result]]></text>
+                </staticText>
+            </frame>
+        </band>
+    </columnHeader>
+
+    <!-- ================== DETAIL ================== -->
+    <detail>
+        <band height="25">
+            <frame>
+                <reportElement x="0" y="0" width="555" height="25" uuid="758be4a9-2475-4a56-9b1e-29ad3764735d"/>
+                <textField>
+                    <reportElement x="0" y="0" width="250" height="25" uuid="8f1f3e79-85a9-44ea-8c82-37c7870ccca7"/>
+                    <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                    <textFieldExpression><![CDATA[$F{testName}]]></textFieldExpression>
+                </textField>
+                <textField>
+                    <reportElement x="250" y="0" width="305" height="25" uuid="aa2de86f-9ac2-4c1d-8f06-5ad94de4fd2e"/>
+                    <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                    <textFieldExpression><![CDATA[$F{result}]]></textFieldExpression>
+                </textField>
+            </frame>
+        </band>
+    </detail>
+
+    <!-- ================== PAGE FOOTER ================== -->
+    <pageFooter>
+        <band height="40">
+            <line>
+                <reportElement x="0" y="0" width="555" height="1" uuid="f3671e19-4f5f-4f47-90df-58eb2cf42e4e"/>
+            </line>
+            <staticText>
+                <reportElement x="0" y="10" width="555" height="20" uuid="bffb8262-76ff-4723-8a74-2ec54d01195c"/>
+                <textElement textAlignment="Center">
+                    <font size="10" isItalic="true"/>
+                </textElement>
+                <text><![CDATA[Generated by Zangu Clinic System - Confidential]]></text>
+            </staticText>
+        </band>
+    </pageFooter>
+
+</jasperReport>
